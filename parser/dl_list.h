@@ -22,5 +22,3 @@ typedef struct DlList_ {
 DlList *DlList_new(char *(*node_inspect)(void *data));
 DlNode *DlList_append(DlList *list, void *data);
 void    DlList_print(DlList *list);
-
-DlNode *DlNode_new(void *data);

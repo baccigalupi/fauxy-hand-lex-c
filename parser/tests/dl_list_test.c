@@ -4,9 +4,12 @@
   Then to run
     `./dl_list_test`
 
-  Expected output:
-   List length: 3
-   <Data Hello> => <Data World> => <Data It works!>
+  TODO:
+    1) List each instead of inspect method passed to list
+    2) String aggregation, with printing happening somewhere else
+      - allows string comparison
+      - printing to stderr
+      ...
 
 */
 
@@ -29,10 +32,12 @@ Data *Data_new(char *name) {
 
 char *Data_inspect (void *void_data) {
   Data *data = (Data *) void_data;
-  int  length = strlen(data->name) + 3;
+  int  length = strlen(data->name) + 8;
 
   // this gets garbage collected by the printer
-  char *name = (char *) malloc(length);
+  char *name = (char *) malloc(sizeof(char) * length);
+  name[0] = '\0'; // initializes the string to empty so that it does not use existing data
+
   strcat(name, "<Data ");
   strcat(name, data->name);
   strcat(name, ">");
@@ -46,8 +51,9 @@ void add_to_list(DlList *list, char *message) {
 }
 
 int main() {
-  DlList *list = DlList_new(Data_inspect);
+  printf("Expected:\nList length: 3\nList: <Data Hello> => <Data World!> => <Data It works!>\n\n");
 
+  DlList *list = DlList_new(Data_inspect);
 
   add_to_list(list, "Hello");
   add_to_list(list, "World!");
