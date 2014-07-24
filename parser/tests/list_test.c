@@ -1,8 +1,8 @@
 /*
   Compiling this test:
-    `gcc dl_list_test.c ../dl_list.c ../messaging.c -o dl_list_test`
+    `gcc list_test.c ../list.c ../messaging.c -o list_test`
   Then to run
-    `./dl_list_test`
+    `./list_test`
 
   TODO:
     1) List each instead of inspect method passed to list
@@ -16,7 +16,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../dl_list.h"
+#include "../list.h"
 #include "../messaging.h"
 
 
@@ -46,21 +46,21 @@ char *Data_inspect (void *void_data) {
 }
 
 // DSL functions
-void add_to_list(DlList *list, char *message) {
-  DlList_append(list, Data_new(message));
+void add_to_list(List *list, char *message) {
+  list_append(list, Data_new(message));
 }
 
 int main() {
   printf("Expected:\nList length: 3\nList: <Data Hello> => <Data World!> => <Data It works!>\n\n");
 
-  DlList *list = DlList_new(Data_inspect);
+  List *list = List_new(Data_inspect);
 
   add_to_list(list, "Hello");
   add_to_list(list, "World!");
   add_to_list(list, "It works!");
 
   printf("List length: %d\n", list_length(list));
-  DlList_print(list);
+  list_print(list);
 
   return 0;
 }
