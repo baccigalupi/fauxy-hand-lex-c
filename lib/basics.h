@@ -9,6 +9,9 @@ enum Boolean {
 };
 
 // frees a pointer and sets it to null
-#define pfree(P) if ((P) != NULL) { free(P); (P) = NULL; }
+#define pfree(P)        if ((P) != NULL) { free(P); (P) = NULL; }
+
+// convenience for clearing the pointer to null after destroyed, second argument is the destroy function
+#define pdestroy(P, F)  pfree(P)
 
 #endif

@@ -5,7 +5,7 @@ PREFIX?=/usr/local
 SOURCES=$(wildcard lib/**/*.c lib/*.c)
 OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
 
-TEST_SRC=$(wildcard tests/*_tests.c)
+TEST_SRC=$(wildcard tests/**/*_tests.c tests/*_tests.c)
 TESTS=$(patsubst %.c,%,$(TEST_SRC))
 
 TARGET=build/fauxy.a

@@ -1,9 +1,9 @@
 #include <assert.h>
 
 #include "../lib/number.h"
-#include "../lib/basics.h"
 
 #include "lib/mu_assert.h"
+#include "../lib/basics.h"
 
 char *test_number_create_as_float() {
   Number *number = Number_create("1.45");
@@ -52,6 +52,7 @@ char *test_convert_to_int() {
   mu_assert(number_type(number) == IntegerType,  "number_convert did not change type to int");
   mu_assert(number_value(number) == (INT)3,  "number_convert did not change type to int");
 
+  number_destroy(number);
   return NULL;
 }
 
@@ -62,6 +63,8 @@ char *test_convert_to_float() {
   mu_assert(number_type(number) == FloatType,  "number_convert did not change type to int");
   mu_assert(number_value(number) == (FLOAT)3.0,  "number_convert did not change type to int");
 
+  number_destroy(number);
+  
   return NULL;
 }
 

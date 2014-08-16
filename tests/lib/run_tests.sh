@@ -5,7 +5,7 @@
 
 echo "\n\nRunning unit tests:"
 
-for i in tests/*_tests
+for i in $(find ./tests -name "*_tests" -type f -maxdepth 4) $tests/*_tests
 do
     if test -f $i
     then

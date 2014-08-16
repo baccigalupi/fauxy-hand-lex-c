@@ -1,0 +1,9 @@
+*.a
+**/*.a
+*.so
+**/*.so
+*.o
+**/*.o
+*.dSYM
+**/*.dSYM
+tests/tests.log
