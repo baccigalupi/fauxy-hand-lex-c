@@ -1,0 +1,47 @@
+DEBUG tests/list_tests.c:319: ----- RUNNING: ./tests/list_tests
+DEBUG tests/list_tests.c:297: 
+----- test_create_list
+DEBUG tests/list_tests.c:299: 
+----- test_list_first_push
+DEBUG tests/list_tests.c:300: 
+----- test_list_second_push
+DEBUG tests/list_tests.c:301: 
+----- test_list_additional_pushes
+DEBUG tests/list_tests.c:303: 
+----- test_list_pop
+DEBUG tests/list_tests.c:304: 
+----- test_multiple_pops
+[31m[ERROR][0m (lib/list.c:69: errno: None) list in list_pop in empty
+DEBUG tests/list_tests.c:306: 
+----- test_list_unshift
+DEBUG tests/list_tests.c:307: 
+----- test_list_unshift_second_time
+DEBUG tests/list_tests.c:308: 
+----- test_list_unshift_additional_time
+DEBUG tests/list_tests.c:310: 
+----- test_list_shift
+DEBUG tests/list_tests.c:311: 
+----- test_multiple_shifts
+[31m[ERROR][0m (lib/list.c:95: errno: None) list in list_shift in empty
+DEBUG tests/list_tests.c:313: 
+----- test_clear
+DEBUG tests/list_tests.c:314: 
+----- test_clear_and_destroy
+DEBUG tests/number_tests.c:80: ----- RUNNING: ./tests/number_tests
+DEBUG tests/number_tests.c:71: 
+----- test_number_create_as_float
+DEBUG tests/number_tests.c:72: 
+----- test_number_create_as_int
+DEBUG tests/number_tests.c:73: 
+----- test_number_create_as_int
+DEBUG tests/number_tests.c:74: 
+----- test_convert_to_int
+DEBUG tests/number_tests.c:75: 
+----- test_convert_to_float
+DEBUG tests/string_tests.c:56: ----- RUNNING: ./tests/string_tests
+DEBUG tests/string_tests.c:49: 
+----- test_create_string_from_literal
+DEBUG tests/string_tests.c:50: 
+----- test_create_string_from_alloced
+DEBUG tests/string_tests.c:51: 
+----- test_string_concat
