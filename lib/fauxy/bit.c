@@ -15,7 +15,3 @@ FauxyBit *FauxyBit_create(FauxyValueType type, void *value) {
 error:
   return NULL;
 }
-
-void fauxy_bit_destroy(FauxyBit *bit) {
-  pfree(bit);
-}
