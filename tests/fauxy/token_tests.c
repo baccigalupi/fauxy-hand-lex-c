@@ -12,12 +12,12 @@ char *test_create_token() {
   FauxyBit *bit = FauxyBit_create(FauxyNumberType, number);
   FauxyToken *token = FauxyToken_create(FX_TOKEN_NUMBER, bit);
 
-  mu_assert(fauxy_token_type(token) == FX_TOKEN_NUMBER, "FauxyToken_create did not set the type");
-  mu_assert(fauxy_token_value(token) == bit, "FauxyToken_create did not set the value");
+  mu_assert(object_type(token) == FX_TOKEN_NUMBER, "FauxyToken_create did not set the type");
+  mu_assert(object_value(token) == bit, "FauxyToken_create did not set the value");
 
   number_destroy(number);
-  fauxy_bit_destroy(bit);
-  fauxy_token_destroy(token);
+  bit_destroy(bit);
+  token_destroy(token);
 
   return NULL;
 }

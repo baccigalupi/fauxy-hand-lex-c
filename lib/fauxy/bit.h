@@ -1,11 +1,9 @@
 #ifndef __fauxy_bit
 #define __fauxy_bit
 
-#include "../basics.h"
+#include "../helpers.h"
 
-#define fauxy_bit_type(B)     ((B)->type)
-#define fauxy_bit_value(B)    ((B)->value)
-#define fauxy_bit_destroy(B)  pfree(B)
+#define bit_destroy(B)  pfree(B)
 
 typedef enum {
   FauxyNumberType,

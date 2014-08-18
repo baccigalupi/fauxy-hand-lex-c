@@ -9,9 +9,9 @@ FauxyToken *FauxyToken_create(FauxyTokenType type, FauxyBit *bit) {
   FauxyToken *token = calloc(1, sizeof(FauxyToken));
   check_mem(token);
 
-  fauxy_token_type(token) = type;
-  fauxy_token_value(token) = bit;
-
+  object_type(token) = type;
+  object_value(token) = bit;
+  
   return token;
 error:
   return NULL;

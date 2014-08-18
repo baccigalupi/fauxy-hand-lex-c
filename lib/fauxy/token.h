@@ -2,7 +2,7 @@
 #define __fauxy_token
 
 #include "bit.h"
-#include "../basics.h"
+#include "../helpers.h"
 
 /*
   Token is the node for lexing into a list,
@@ -78,15 +78,9 @@ typedef struct FauxyToken {
   struct FauxyToken *right;
 } FauxyToken;
 
-#define fauxy_token_type(T)       ((T)->type)
-#define fauxy_token_value(T)      ((T)->value)
-#define fauxy_token_parent(T)     ((T)->parent)
-#define fauxy_token_left(T)       ((T)->left)
-#define fauxy_token_prev(T)       ((T)->left)
-#define fauxy_token_right(T)      ((T)->right)
-#define fauxy_token_next(T)       ((T)->right)
-#define fauxy_token_destroy(T)    pfree(T)
-#define fauxy_token_has_value(T)  (fauxy_token_type(T) == FX_TOKEN_NUMBER || fauxy_token_type(T) == FX_TOKEN_STRING)
+
+#define token_type_has_value(T)  ((T) == FX_TOKEN_NUMBER || (T) == FX_TOKEN_STRING)
+#define token_destroy(T)         pfree(T)
 
 FauxyToken *FauxyToken_create(FauxyTokenType type, FauxyBit *bit);
 

@@ -9,10 +9,10 @@ char *test_fauxy_bit_create() {
   Number *number = Number_create("1.223");
   FauxyBit *bit = FauxyBit_create(FauxyNumberType, number);
 
-  mu_assert(fauxy_bit_type(bit) == FauxyNumberType, "FauxyBit_create did not set the type");
-  mu_assert(fauxy_bit_value(bit) == number,         "FauxyBit_create did not set the type");
+  mu_assert(object_type(bit) == FauxyNumberType, "FauxyBit_create did not set the type");
+  mu_assert(object_value(bit) == number,         "FauxyBit_create did not set the type");
 
-  fauxy_bit_destroy(bit);
+  bit_destroy(bit);
 
   return NULL;
 }
