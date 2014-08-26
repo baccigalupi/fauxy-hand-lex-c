@@ -1,22 +1,20 @@
 #ifndef __data_structures_list_h
 #define __data_structures_list_h
 
-typedef struct ListNode {
-  void *value;
-  struct ListNode *prev;
-  struct ListNode *next;
-} ListNode;
+#include "node.h"
 
 typedef struct List {
   int length;
-  struct ListNode *first;
-  struct ListNode *last;
+  struct Node *first;
+  struct Node *last;
 } List;
 
-#define list_length(L)  ((L)->length)
-#define list_first(L)   ((L)->first ? (L)->first->value : NULL)
-#define list_last(L)    ((L)->last == NULL  ? NULL : (L)->last->value)
-#define list_each(L, N) for (N = L->first; N != NULL; N = N->next)
+#define list_length(L)        ((L)->length)
+#define list_node_first(L)    ((L)->first)
+#define list_first(L)         ((L)->first ? (L)->first->value : NULL)
+#define list_node_last(L)     ((L)->last)
+#define list_last(L)          ((L)->last == NULL  ? NULL : (L)->last->value)
+#define list_each(L, N)       for (N = L->first; N != NULL; N = N->next)
 
 List *List_create();
 void  list_push(   List *list, void *value);

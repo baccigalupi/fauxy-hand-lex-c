@@ -16,12 +16,20 @@ typedef struct String {
 #define string_allocation(S)    (((S)->limit) + 1)
 #define string_count(S)         ((S)->length)
 #define string_length(S)        ((S)->length)
-#define string_compare(S, T)  (strcmp(string_value(S), string_value(T)))
+#define string_compare(S, T)    (strcmp(string_value(S), string_value(T)))
 
 String *String_create(const char *value);
 int     string_set(String *string, const char *value);
 int     string_expand(String *string, int needed_length);
 int     string_concat(String *string, const char *addition);
 void    string_destroy(String *string);
+
+static void inline string_push(String *string, char c) {
+  char tmp[2];
+  tmp[0] = c;
+  tmp[1] = '\0';
+  strcat(string_value(string), tmp);
+  string_length(string) ++;
+}
 
 #endif

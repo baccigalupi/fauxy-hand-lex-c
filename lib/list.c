@@ -13,8 +13,8 @@ error:
   return NULL;
 }
 
-ListNode *ListNode_create(void *value) {
-  ListNode *node = calloc(1, sizeof(ListNode));
+Node *Node_create(void *value) {
+  Node *node = calloc(1, sizeof(Node));
   check_mem(node);
   node->value = value;
   return node;
@@ -25,9 +25,9 @@ error:
 void  list_push(List *list, void *value) {
   check(list, "list in list_push is NULL");
 
-  ListNode *new_node = ListNode_create(value);
+  Node *new_node = Node_create(value);
 
-  ListNode *current_tail = list->last;
+  Node *current_tail = list->last;
   if (current_tail) {
     current_tail->next = new_node;
     new_node->prev = current_tail;
@@ -46,9 +46,9 @@ error:
 void list_unshift(List *list, void *value) {
   check(list,  "list in list_unshift is NULL");
 
-  ListNode *new_node = ListNode_create(value);
+  Node *new_node = Node_create(value);
 
-  ListNode *current_head = list->first;
+  Node *current_head = list->first;
   if (current_head) {
     current_head->prev = new_node;
     new_node->next = current_head;
@@ -69,10 +69,10 @@ void *list_pop(List *list) {
   check(list->last, "list in list_pop in empty");
 
   void *value = list_last(list);
-  ListNode *old_tail = list->last;
+  Node *old_tail = list->last;
   check(old_tail, "list in list_pop has nothing to pop");
 
-  ListNode *new_tail = old_tail->prev;
+  Node *new_tail = old_tail->prev;
   if (new_tail) {
     new_tail->next = NULL;   // set penultimate next to null
     list->last = new_tail;   // set last on list to penultimate
@@ -95,10 +95,10 @@ void *list_shift(List *list) {
   check(list->first,  "list in list_shift in empty");
 
   void *value = list_first(list);
-  ListNode *old_head = list->first;
+  Node *old_head = list->first;
   check(old_head, "list in list_shift is ");
 
-  ListNode *new_head = old_head->next;
+  Node *new_head = old_head->next;
   list->first = new_head;
   if (!new_head) {
     list->last = NULL;
@@ -115,7 +115,7 @@ error:
 void list_clear(List *list) {
   check(list, "list is NULL");
 
-  ListNode *node;
+  Node *node;
   list_each(list, node) {
     if (node->value) {
       pfree(node->value);
@@ -128,10 +128,10 @@ error:
 void list_destroy(List *list) {
   check(list, "list in list_destroy is NULL");
 
-  ListNode *node = list->first;
+  Node *node = list->first;
 
   if (node != NULL) {
-    ListNode *next;
+    Node *next;
 
     while (node != NULL) {
       next = node->next;
@@ -148,9 +148,9 @@ error:
 void  list_clear_and_destroy(List *list) {
   check(list, "list in list_clear_and_destroy is NULL");
 
-  ListNode *node = list->first;
+  Node *node = list->first;
   if (node != NULL) {
-    ListNode *next;
+    Node *next;
 
     while (node != NULL) {
       next = node->next;

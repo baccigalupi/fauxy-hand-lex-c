@@ -1,22 +1,16 @@
 #include <assert.h>
 
 #include "../../lib/fauxy/token.h"
-#include "../../lib/fauxy/bit.h"
 #include "../../lib/number.h"
 #include "../../lib/dstring.h"
 
 #include "../lib/mu_assert.h"
 
 char *test_create_token() {
-  Number *number = Number_create("3.14");
-  FauxyBit *bit = FauxyBit_create(FauxyNumberType, number);
-  FauxyToken *token = FauxyToken_create(FX_TOKEN_NUMBER, bit);
+  Token *token =   Token_create(FX_TOKEN_NUMBER);
 
-  mu_assert(object_type(token) == FX_TOKEN_NUMBER, "FauxyToken_create did not set the type");
-  mu_assert(object_value(token) == bit, "FauxyToken_create did not set the value");
+  mu_assert(object_type(token) == FX_TOKEN_NUMBER, "Token_create did not set the type");
 
-  number_destroy(number);
-  bit_destroy(bit);
   token_destroy(token);
 
   return NULL;

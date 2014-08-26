@@ -65,9 +65,9 @@ char *test_list_additional_pushes() {
   mu_assert(list_length(list) == 3,     "list_push did not set count correctly after subsequent pushes");
 
   // connections between nodes
-  ListNode *first_node =  list->first;
-  ListNode *middle_node = list->first->next;
-  ListNode *last_node =   list->last;
+  Node *first_node =  list->first;
+  Node *middle_node = list->first->next;
+  Node *last_node =   list->last;
 
   mu_assert(middle_node->value == str_2,         "list_push did put value on the middle node");
 
@@ -182,9 +182,9 @@ char *test_list_unshift_additional_time() {
   mu_assert(list_first(list) == str_3, "list_unshift did not set the value of the first node");
 
   // connections between nodes
-  ListNode *first_node =  list->first;
-  ListNode *middle_node = list->first->next;
-  ListNode *last_node =   list->last;
+  Node *first_node =  list->first;
+  Node *middle_node = list->first->next;
+  Node *last_node =   list->last;
 
   mu_assert(middle_node->value == str_2,         "list_push did put value on the middle node");
 

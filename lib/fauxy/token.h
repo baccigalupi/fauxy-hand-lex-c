@@ -1,8 +1,9 @@
 #ifndef __fauxy_token
 #define __fauxy_token
 
-#include "bit.h"
 #include "../helpers.h"
+#include "../dstring.h"
+#include "../number.h"
 
 /*
   Token is the node for lexing into a list,
@@ -13,7 +14,7 @@
 
 typedef enum {
   FX_TOKEN_LINE_END,            // "\n"
-  FX_TOKEN_STATEMENT_END,
+  FX_TOKEN_STATEMENT_END,       // ";"
 
   FX_TOKEN_NUMBER,
   FX_TOKEN_STRING,
@@ -38,50 +39,70 @@ typedef enum {
 
   FX_TOKEN_GLOBAL_ID,           // starts with uppercase
   FX_TOKEN_ID                   // method calls and variable names
-} FauxyTokenType;
+} TokenType;
 
-static char * FauxyTokenTypeDescriptions[] = {
-  "Line End",
-  "Statement End",
+static char * TokenTypeDescriptions[] = {
+  "\n",
+  ";",
 
   "Number",
   "String",
 
-  "Attribute Accessor",
-  "Group Start",
-  "Arguments Start",
-  "Group End",
-  "Arguments End",
-  "Comma",
-  "Setter",
-  "Block Start",
-  "Block End",
-  "Deferred Argument",
+  ".",
+  "(",
+  "Arguments (",
+  ")",
+  "Arguments )",
+  ",",
+  "=",
+  "{",
+  "}",
+  "_",
 
-  "Block Declaration",
-  "Comment Line Start",
-  "Comment Block Start",
-  "Commend Block End",
-  "Injector Operator",
-  "Composer Operator",
+  "->",
+  "//",
+  "/*",
+  "*/",
+  "<<",
+  ">>",
 
   "Global Id",
   "Id"
 };
 
-typedef struct FauxyToken {
-  FauxyTokenType  type;
-  FauxyBit        *value;
+typedef struct Token {
+  TokenType  type;
+  void       *value;
+  int        line;
+  int        column;
+  //   TODO: file_id
+} Token;
 
-  struct FauxyToken *parent;
-  struct FauxyToken *left;
-  struct FauxyToken *right;
-} FauxyToken;
 
+#define token_has_value(T)      (                                       \
+                                  ((T)->type) == FX_TOKEN_NUMBER ||     \
+                                  ((T)->type) == FX_TOKEN_STRING ||     \
+                                  ((T)->type) == FX_TOKEN_GLOBAL_ID ||  \
+                                  ((T)->type) == FX_TOKEN_ID            \
+                                )
 
-#define token_type_has_value(T)  ((T) == FX_TOKEN_NUMBER || (T) == FX_TOKEN_STRING)
-#define token_destroy(T)         pfree(T)
+#define token_get_value(T)      (                                                               \
+                                  ((T)->type) == FX_TOKEN_NUMBER ? (Number *)((T)->value) :     \
+                                  ((T)->type) == FX_TOKEN_STRING ||                             \
+                                    ((T)->type) == FX_TOKEN_GLOBAL_ID ||                        \
+                                    ((T)->type) == FX_TOKEN_ID ? (String *)((T)->value) : NULL  \
+                                )
 
-FauxyToken *FauxyToken_create(FauxyTokenType type, FauxyBit *bit);
+#define token_line(T)           ((T)->line)
+#define token_column(T)         ((T)->column)
+
+Token *Token_create(TokenType type);
+
+#define token_destroy(T)        pfree(T)
+
+void inline static token_clear_and_destroy(Token *token) {
+  free( object_value(token) );
+  pfree(token);
+}
 
 #endif
