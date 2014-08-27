@@ -99,6 +99,7 @@ typedef struct Token {
 Token *Token_create(TokenType type);
 
 #define token_destroy(T)        pfree(T)
+#define token_number_value(T)   (number_value((Number *)((T)->value)))
 
 void inline static token_clear_and_destroy(Token *token) {
   free( object_value(token) );

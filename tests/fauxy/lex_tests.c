@@ -33,7 +33,7 @@ char *test_float() {
   check(token, "token was not attached to node");
 
   mu_assert(object_type(token) == FX_TOKEN_NUMBER, "lex did not build token for number");
-  mu_assert((number_value((Number *)object_value(token))) == (FLOAT)1.324, "lex did not assign number token value");
+  mu_assert(token_number_value(token) == (FLOAT)1.324, "lex did not assign number token value");
   mu_assert(token_line(token) == 1, "token line set incorrectly");
   mu_assert(token_column(token) == 1, "token column set incorrectly");
 
@@ -52,7 +52,7 @@ char *test_float_with_padding() {
   check(token, "token was not attached to node");
 
   mu_assert(object_type(token) == FX_TOKEN_NUMBER, "lex did not build token for number");
-  mu_assert((number_value((Number *)object_value(token))) == (FLOAT)1.324, "lex did not assign number token value");
+  mu_assert(token_number_value(token) == (FLOAT)1.324, "lex did not assign number token value");
   mu_assert(token_line(token) == 1, "token line set incorrectly");
   mu_assert(token_column(token) == 5, "token column set incorrectly");
 
@@ -71,7 +71,7 @@ char *test_two_floats_with_padding() {
   check(token, "token was not attached to node");
 
   mu_assert(object_type(token) == FX_TOKEN_NUMBER, "lex did not build token for number");
-  mu_assert((number_value((Number *)object_value(token))) == (FLOAT)1.324, "lex did not assign number token value");
+  mu_assert(token_number_value(token) == (FLOAT)1.324, "lex did not assign number token value");
   mu_assert(token_line(token) == 1, "token line set incorrectly");
   mu_assert(token_column(token) == 5, "token column set incorrectly");
 
@@ -79,7 +79,7 @@ char *test_two_floats_with_padding() {
   check(token, "token was not attached to node");
 
   mu_assert(object_type(token) == FX_TOKEN_NUMBER, "lex did not build token for number");
-  mu_assert((number_value((Number *)object_value(token))) == (FLOAT)4.0, "lex did not assign number token value");
+  mu_assert(token_number_value(token) == (FLOAT)4.0, "lex did not assign number token value");
   mu_assert(token_line(token) == 1, "token line set incorrectly");
   mu_assert(token_column(token) == 13, "token column set incorrectly");
 
@@ -121,7 +121,7 @@ char *test_line_end_with_float() {
   check(token, "token was not attached to node");
 
   mu_assert(object_type(token) == FX_TOKEN_NUMBER, "lex did not build token for number");
-  mu_assert((number_value((Number *)object_value(token))) == (FLOAT)3.14, "lex did not assign number token value");
+  mu_assert(token_number_value(token) == (FLOAT)3.14, "lex did not assign number token value");
   mu_assert(token_line(token) == 2, "token line set incorrectly");
 
   mu_assert(token_column(token) == 4, "token column set incorrectly");
