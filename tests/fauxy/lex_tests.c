@@ -146,6 +146,66 @@ error:
   return "failed";
 }
 
+char *test_single_quoted_string_no_space() {
+  List *list = lex("'hello'");
+  mu_assert(list_length(list) == 1, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 0);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_STRING, "lex did not build right token type for string");
+  mu_assert(strcmp(token_string_value(token), "hello") == 0,  "lex did not assign right value for string");
+
+  return NULL;
+error:
+  return "failed";
+}
+
+char *test_double_quoted_string_no_space() {
+  List *list = lex("\"hello\"");
+  mu_assert(list_length(list) == 1, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 0);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_STRING, "lex did not build right token type for string");
+  mu_assert(strcmp(token_string_value(token), "hello") == 0,  "lex did not assign right value for string");
+
+  return NULL;
+error:
+  return "failed";
+}
+
+char *test_single_quoted_string_with_space() {
+  List *list = lex(" 'hello world' ");
+  mu_assert(list_length(list) == 1, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 0);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_STRING, "lex did not build right token type for string");
+  mu_assert(strcmp(token_string_value(token), "hello world") == 0,  "lex did not assign right value for string");
+
+  return NULL;
+error:
+  return "failed";
+}
+
+char *test_double_quoted_string_with_space() {
+  List *list = lex(" \"hello world\" ");
+  mu_assert(list_length(list) == 1, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 0);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_STRING, "lex did not build right token type for string");
+  mu_assert(strcmp(token_string_value(token), "hello world") == 0,  "lex did not assign right value for string");
+
+  return NULL;
+error:
+  return "failed";
+}
+
 char *all_tests() {
   mu_suite_start();
 
@@ -155,6 +215,10 @@ char *all_tests() {
   mu_run_test(test_line_end);
   mu_run_test(test_line_end_with_float);
   mu_run_test(test_integer);
+  mu_run_test(test_single_quoted_string_no_space);
+  mu_run_test(test_double_quoted_string_no_space);
+  mu_run_test(test_single_quoted_string_with_space);
+  mu_run_test(test_double_quoted_string_with_space);
 
   return NULL;
 }

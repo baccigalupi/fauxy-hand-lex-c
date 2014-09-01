@@ -13,6 +13,7 @@
 */
 
 typedef enum {
+  FX_NOT_A_TOKEN,               // NULL state for iffiness
   FX_TOKEN_LINE_END,            // "\n"
   FX_TOKEN_STATEMENT_END,       // ";"
 
@@ -41,34 +42,43 @@ typedef enum {
   FX_TOKEN_ID                   // method calls and variable names
 } TokenType;
 
-static char * TokenTypeDescriptions[] = {
-  "\n",
-  ";",
+typedef enum {
+  FX_CLOSING_NULL,              // NULL state for iffiness
+  FX_CLOSING_SINGLE_QUOTE,
+  FX_CLOSING_DOUBLE_QUOTE,
+  FX_CLOSING_LINE_COMMENT,
+  FX_CLOSING_BLOCK_COMMENT
+} ClosingBookend;
 
-  "Number",
-  "String",
-
-  ".",
-  "(",
-  "Arguments (",
-  ")",
-  "Arguments )",
-  ",",
-  "=",
-  "{",
-  "}",
-  "_",
-
-  "->",
-  "//",
-  "/*",
-  "*/",
-  "<<",
-  ">>",
-
-  "Global Id",
-  "Id"
-};
+// static char * TokenTypeDescriptions[] = {
+//   "NULL",
+//   "\n",
+//   ";",
+//
+//   "Number",
+//   "String",
+//
+//   ".",
+//   "(",
+//   "Arguments (",
+//   ")",
+//   "Arguments )",
+//   ",",
+//   "=",
+//   "{",
+//   "}",
+//   "_",
+//
+//   "->",
+//   "//",
+//   "/*",
+//   "*/",
+//   "<<",
+//   ">>",
+//
+//   "Global Id",
+//   "Id"
+// };
 
 typedef struct Token {
   TokenType  type;
@@ -101,6 +111,7 @@ Token *Token_create(TokenType type);
 #define token_destroy(T)        pfree(T)
 #define token_number_value(T)   (number_value((Number *)((T)->value)))
 #define token_number_type(T)    (object_type((Number *)object_value(token)))
+#define token_string_value(T)   (string_value((String *)((T)->value)))
 
 void inline static token_clear_and_destroy(Token *token) {
   free( object_value(token) );

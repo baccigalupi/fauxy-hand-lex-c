@@ -32,7 +32,7 @@ List *lex(char *str) {
   }
 
   // free some shit!
-  // lex_state
+  // lex_state, etc
 
   return list;
 error:
@@ -46,6 +46,11 @@ Token *lexeme_to_token(Lexeme *lexeme) {
 
   if ( char_is_line_end(word[0]) ) {
     type = FX_TOKEN_STATEMENT_END;
+  } else if ( char_is_string_bookend(word[0]) ) {
+    type = FX_TOKEN_STRING;
+    word[string_length(lexeme_word(lexeme)) - 1] = '\0';
+    value = String_create((word+1));
+    check(value, "string is NULL");
   } else {
     type = FX_TOKEN_NUMBER;
     value = Number_create(word);
@@ -58,6 +63,8 @@ Token *lexeme_to_token(Lexeme *lexeme) {
   object_value(token) = value;
   token_line(token) =   lexeme_line(lexeme);
   token_column(token) = lexeme_column(lexeme);
+
+  // clean up some stuff, lexeme ???
 
   return token;
 error:
@@ -74,11 +81,23 @@ Lexeme *lex_get_next_lexeme(LexState *lex_state) {
   Boolean should_continue = true;
 
   while ( lex_state_current(lex_state) < length && should_continue ) {
-    if ( char_is_significant(c) ) {
+    if ( string_length(word) == 0 && char_is_opening_bookends(c) ) {
+      lex_state_expects_closing(lex_state) = (c == '\'' ? FX_CLOSING_SINGLE_QUOTE : FX_CLOSING_DOUBLE_QUOTE);
+    }
+
+    if ( lex_state_is_open(lex_state) || char_is_significant(c) ) {
       column = column ? column: (lex_state_column(lex_state));
       line = lex_state_line(lex_state);
       string_push(word, c);
+    }
 
+    if ( lex_state_is_open(lex_state) ) {
+      // strings and comments
+      if ( string_length(word) > 1 && lex_state_will_close(lex_state, c) ) {
+        lex_state_close(lex_state);
+        should_continue = false;
+      }
+    } else if ( char_is_significant(c) ) {
       if ( char_is_line_end(c) ) {
         lex_state_line(lex_state) ++;
         lex_state_column(lex_state) = 0;
