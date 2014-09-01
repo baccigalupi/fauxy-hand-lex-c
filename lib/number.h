@@ -8,16 +8,17 @@
 #define FLOAT   float
 #define A_TO_F  atof
 
-#define number_type(N)    ((N)->type)
-#define number_value(N)   (number_type(N) == IntegerType) ? ((N)->value.as_int) : ((N)->value.as_float)
-
 typedef enum {
   IntegerType,
   FloatType
 } NumberType;
 
+#define number_type(N)    ((N)->type)
+#define number_value(N)   ((number_type(N) == IntegerType) ? ((N)->value.as_int) : ((N)->value.as_float))
+
 typedef struct {
   int type;
+  // TODO: change to pointer for right size per
   union {
     INT   as_int;
     FLOAT as_float;

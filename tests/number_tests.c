@@ -30,7 +30,7 @@ char *test_convert_to_same_type() {
   number_convert(number, IntegerType);
 
   mu_assert(number_type(number) == IntegerType, "number_convert changed type when it shouldn't have");
-  mu_assert(number_value(number) == (INT)145,        "number_convert changed value when it shouldn't have");
+  mu_assert(number_value(number) == (INT)145,   "number_convert changed value when it shouldn't have");
 
   number_destroy(number);
 
@@ -49,8 +49,8 @@ char *test_convert_to_int() {
   Number *number = Number_create("3.14");
   number_convert(number, IntegerType);
 
-  mu_assert(number_type(number) == IntegerType,  "number_convert did not change type to int");
-  mu_assert(number_value(number) == (INT)3,  "number_convert did not change type to int");
+  mu_assert(number_type(number) == (int)IntegerType,  "number_convert did not change type to int");
+  mu_assert(number_value(number) == (INT)3,           "number_convert did not change type to int");
 
   number_destroy(number);
   return NULL;
@@ -60,11 +60,11 @@ char *test_convert_to_float() {
   Number *number = Number_create("3");
   number_convert(number, FloatType);
 
-  mu_assert(number_type(number) == FloatType,  "number_convert did not change type to int");
+  mu_assert(number_type(number) == (int)FloatType,  "number_convert did not change type to int");
   mu_assert(number_value(number) == (FLOAT)3.0,  "number_convert did not change type to int");
 
   number_destroy(number);
-  
+
   return NULL;
 }
 

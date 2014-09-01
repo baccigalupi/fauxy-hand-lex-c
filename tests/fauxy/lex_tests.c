@@ -131,6 +131,21 @@ error:
   return "failed";
 }
 
+char *test_integer() {
+  List *list = lex("314");
+  mu_assert(list_length(list) == 1, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 0);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_NUMBER, "lex did not build token for number");
+  mu_assert(token_number_value(token) == (INT)314, "lex did not assign number token value");
+
+  return NULL;
+error:
+  return "failed";
+}
+
 char *all_tests() {
   mu_suite_start();
 
@@ -139,6 +154,7 @@ char *all_tests() {
   mu_run_test(test_two_floats_with_padding);
   mu_run_test(test_line_end);
   mu_run_test(test_line_end_with_float);
+  mu_run_test(test_integer);
 
   return NULL;
 }

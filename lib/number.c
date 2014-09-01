@@ -18,7 +18,7 @@ Number *Number_create(const char *str) {
   }
 
   number_type(number) = is_float ? FloatType : IntegerType;
-  number->value.as_float = A_TO_F(str);
+  is_float ? (number->value.as_float = A_TO_F(str)) : (number->value.as_int = A_TO_I(str));
 
   return number;
 error:
@@ -28,7 +28,15 @@ error:
 void number_convert(Number *number, int type) {
   if (number_type(number) == type) { return; }
 
-  number_type(number) = (type == IntegerType) ? IntegerType : FloatType;
+  if (type == IntegerType) {
+    FLOAT original = number_value(number);
+    number_type(number) = IntegerType;
+    number->value.as_int = (INT)original;
+  } else {
+    INT original = number_value(number);
+    number_type(number) = FloatType;
+    number->value.as_float = (FLOAT)original;
+  }
 }
 
 void number_destroy(Number *number) {
