@@ -19,7 +19,6 @@ typedef struct LexState {
 #define char_is_string_bookend(C)   (C == '\'' || C == '"')
 
 
-
 #define lex_state_current(L)          ((L)->current)
 #define lex_state_line(L)             ((L)->line)
 #define lex_state_column(L)           ((L)->column)
@@ -30,13 +29,16 @@ typedef struct LexState {
 #define lex_state_advance(L)          ((++ lex_state_current(lex_state)) && (++ lex_state_column(L)))
 #define lex_state_expects_closing(L)  ((L)->expects_closing)
 #define lex_state_is_open(L)          ((L)->expects_closing)
+
 #define lex_state_will_close(L, C)    (                                                                           \
                                         (L)->expects_closing &&                                                   \
                                         (                                                                         \
                                           ((((L)->expects_closing) == FX_CLOSING_SINGLE_QUOTE) && C == '\'')  ||  \
                                           ((((L)->expects_closing) == FX_CLOSING_DOUBLE_QUOTE) && C == '"')   ||  \
                                           ((((L)->expects_closing) == FX_CLOSING_BLOCK_COMMENT) && C == '*' &&    \
-                                              lex_state_next_char(L) == '/')                                      \
+                                              lex_state_next_char(L) == '/')                                  ||  \
+                                          ((((L)->expects_closing) == FX_CLOSING_LINE_COMMENT) &&                 \
+                                              lex_state_next_char(L) == '\n')                                     \
                                         )                                                                         \
                                       )
 #define lex_state_close(L)                      (                                                                         \
@@ -47,7 +49,13 @@ typedef struct LexState {
 
 #define lex_state_start_new_line(L)             ((++ lex_state_line(lex_state)) && (lex_state_column(lex_state) = 0))
 #define lex_state_opening_block_comment(L, C)   (C == '/' && lex_state_next_char(L) == '*')
-#define lex_state_is_opening(L, C)              (char_is_string_bookend(C) || lex_state_opening_block_comment(L, C))
+#define lex_state_opening_line_comment(L, C)    (C == '/' && lex_state_next_char(L) == '/')
+
+#define lex_state_is_opening(L, C)              (                                                                         \
+                                                  char_is_string_bookend(C) ||                                            \
+                                                  lex_state_opening_block_comment(L, C) ||                                \
+                                                  lex_state_opening_line_comment(L, C)                                    \
+                                                )
 
 #define lex_state_closer(L, C)                  (                                                                                               \
                                                   C == '\'' ? FX_CLOSING_SINGLE_QUOTE :                                                         \
@@ -63,6 +71,7 @@ typedef struct LexState {
                                                     (lex_state_is_open(L))                                        \
                                                   )                                                               \
                                                 )
+
 #define lex_state_in_progress(L)                (lex_state_current(lex_state) < lex_state_length(lex_state))
 
 typedef struct Lexeme {

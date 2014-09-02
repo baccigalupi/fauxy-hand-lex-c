@@ -275,22 +275,68 @@ error:
   return "failed";
 }
 
+char *test_line_comment() {
+  List *list = lex("3.14 // hello comment");
+
+  mu_assert(list_length(list) == 1, "lex created wrong number of tokens");
+
+  return NULL;
+}
+
+char *test_line_comment_affect_line() {
+  List *list = lex("1 // hello comment\n 3.14");
+  mu_assert(list_length(list) == 3, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 0);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_NUMBER,    "lex did not build token for number");
+  mu_assert(token_number_value(token) == (INT)1, "lex did not assign number token value");
+  mu_assert(token_line(token) == 1,                   "token line set incorrectly");
+  mu_assert(token_column(token) == 1,                 "token column set incorrectly");
+
+  token = get_token_from_list(list, 1);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_STATEMENT_END, "lex did not build correct token type for line end");
+  mu_assert(object_value(token) == NULL, "lex incorrectly assigned value to line end token");
+  mu_assert(token_line(token) == 1, "token line set incorrectly");
+  mu_assert(token_column(token) == 19, "token column set incorrectly");
+
+  token = get_token_from_list(list, 2);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_NUMBER,    "lex did not build token for number");
+  mu_assert(token_number_value(token) == (FLOAT)3.14, "lex did not assign number token value");
+  mu_assert(token_line(token) == 2,                   "token line set incorrectly");
+  mu_assert(token_column(token) == 2,                 "token column set incorrectly");
+
+  return NULL;
+error:
+  return "failed";
+}
+
 char *all_tests() {
   mu_suite_start();
 
   mu_run_test(test_float);
   mu_run_test(test_float_with_padding);
   mu_run_test(test_two_floats_with_padding);
+  mu_run_test(test_integer);
+
   mu_run_test(test_line_end);
   mu_run_test(test_line_end_with_float);
-  mu_run_test(test_integer);
+
   mu_run_test(test_single_quoted_string_no_space);
   mu_run_test(test_double_quoted_string_no_space);
   mu_run_test(test_single_quoted_string_with_space);
   mu_run_test(test_double_quoted_string_with_space);
   mu_run_test(test_strings_with_line_break);
+
   mu_run_test(test_block_comment);
   mu_run_test(test_block_comment_affect_line);
+  mu_run_test(test_line_comment);
+  mu_run_test(test_line_comment_affect_line);
 
   return NULL;
 }
