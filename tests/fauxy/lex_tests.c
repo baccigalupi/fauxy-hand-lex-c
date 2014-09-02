@@ -95,7 +95,7 @@ char *test_line_end() {
   Token *token = get_token_from_list(list, 0);
   check(token, "token was not attached to node");
 
-  mu_assert(object_type(token) == FX_TOKEN_STATEMENT_END, "lex did not build correct token type for line end");
+  mu_assert(object_type(token) == FX_TOKEN_LINE_END, "lex did not build correct token type for line end");
   mu_assert(object_value(token) == NULL, "lex incorrectly assigned value to line end token");
   mu_assert(token_line(token) == 1, "token line set incorrectly");
   mu_assert(token_column(token) == 2, "token column set incorrectly");
@@ -112,7 +112,7 @@ char *test_line_end_with_float() {
   Token *token = get_token_from_list(list, 0);
   check(token, "token was not attached to node");
 
-  mu_assert(object_type(token) == FX_TOKEN_STATEMENT_END, "lex did not build correct token type for line end");
+  mu_assert(object_type(token) == FX_TOKEN_LINE_END, "lex did not build correct token type for line end");
   mu_assert(object_value(token) == NULL, "lex incorrectly assigned value to line end token");
   mu_assert(token_line(token) == 1, "token line set incorrectly");
   mu_assert(token_column(token) == 2, "token column set incorrectly");
@@ -257,7 +257,7 @@ char *test_block_comment_affect_line() {
   Token *token = get_token_from_list(list, 0);
   check(token, "token was not attached to node");
 
-  mu_assert(object_type(token) == FX_TOKEN_STATEMENT_END, "lex did not build correct token type for line end");
+  mu_assert(object_type(token) == FX_TOKEN_LINE_END, "lex did not build correct token type for line end");
   mu_assert(object_value(token) == NULL, "lex incorrectly assigned value to line end token");
   mu_assert(token_line(token) == 2, "token line set incorrectly");
   mu_assert(token_column(token) == 11, "token column set incorrectly");
@@ -298,7 +298,7 @@ char *test_line_comment_affect_line() {
   token = get_token_from_list(list, 1);
   check(token, "token was not attached to node");
 
-  mu_assert(object_type(token) == FX_TOKEN_STATEMENT_END, "lex did not build correct token type for line end");
+  mu_assert(object_type(token) == FX_TOKEN_LINE_END, "lex did not build correct token type for line end");
   mu_assert(object_value(token) == NULL, "lex incorrectly assigned value to line end token");
   mu_assert(token_line(token) == 1, "token line set incorrectly");
   mu_assert(token_column(token) == 19, "token column set incorrectly");
@@ -310,6 +310,75 @@ char *test_line_comment_affect_line() {
   mu_assert(token_number_value(token) == (FLOAT)3.14, "lex did not assign number token value");
   mu_assert(token_line(token) == 2,                   "token line set incorrectly");
   mu_assert(token_column(token) == 2,                 "token column set incorrectly");
+
+  return NULL;
+error:
+  return "failed";
+}
+
+char *test_statement_end() {
+  List *list = lex("'hello'; 1234; 3.14");
+  mu_assert(list_length(list) == 5, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 0);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_STRING,           "lex did not build token for string");
+  mu_assert(strcmp(token_string_value(token), "hello") == 0, "lex did not assign number token value");
+
+  token = get_token_from_list(list, 1);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_STATEMENT_END,    "lex did not build token for semicolon");
+  mu_assert(object_value(token) == NULL, "lex incorrectly assigned value to line end token");
+
+  token = get_token_from_list(list, 2);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_NUMBER,    "lex did not build token for number");
+  mu_assert(token_number_value(token) == (INT)1234,   "lex did no assign value to number");
+
+  token = get_token_from_list(list, 3);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_STATEMENT_END,    "lex did not build token for semicolon");
+  mu_assert(object_value(token) == NULL, "lex incorrectly assigned value to line end token");
+
+  token = get_token_from_list(list, 4);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_NUMBER,    "lex did not build token for number");
+  mu_assert(token_number_value(token) == (FLOAT)3.14,   "lex did no assign value to number");
+
+  return NULL;
+error:
+  return "failed";
+}
+
+char *test_regex() {
+  List *list = lex(" /[a-z]/i ");
+  mu_assert(list_length(list) == 1, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 0);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_REGEX, "lex did not build right token type for regex");
+  mu_assert(strcmp(token_string_value(token),"/[a-z]/i") == 0, "lex did not build right value for type regex");
+
+  return NULL;
+error:
+  return "failed";
+}
+
+char *test_regex_with_space() {
+  List *list = lex(" /[a-z] [0-9]/i ");
+  mu_assert(list_length(list) == 1, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 0);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_REGEX, "lex did not build right token type for regex");
+  mu_assert(strcmp(token_string_value(token),"/[a-z] [0-9]/i") == 0, "lex did not build right value for type regex");
 
   return NULL;
 error:
@@ -337,6 +406,11 @@ char *all_tests() {
   mu_run_test(test_block_comment_affect_line);
   mu_run_test(test_line_comment);
   mu_run_test(test_line_comment_affect_line);
+
+  mu_run_test(test_statement_end);
+
+  mu_run_test(test_regex);
+  // mu_run_test(test_regex_with_space);
 
   return NULL;
 }

@@ -46,10 +46,17 @@ Token *lexeme_to_token(Lexeme *lexeme) {
   TokenType type;
   char *word = string_value(lexeme_word(lexeme));
   void *value = NULL;
+  char first_char = word[0];
 
-  if ( char_is_line_end(word[0]) ) {
+  if ( char_is_line_end(first_char) ) {
+    type = FX_TOKEN_LINE_END;
+  } else if ( char_is_statement_end(first_char) ) {
     type = FX_TOKEN_STATEMENT_END;
-  } else if ( char_is_string_bookend(word[0]) ) {
+  } else if ( char_is_regex_bookend(first_char) ) {
+    type = FX_TOKEN_REGEX;
+    value = String_create(word);
+    check(value, "string is NULL");
+  } else if ( char_is_string_bookend(first_char) ) {
     type = FX_TOKEN_STRING;
     word[string_length(lexeme_word(lexeme)) - 1] = '\0';
     value = String_create((word+1));
@@ -84,13 +91,13 @@ Lexeme *lex_get_next_lexeme(LexState *lex_state) {
   Boolean should_continue = true;
 
   while ( lex_state_in_progress(lex_state) && should_continue ) {
-    // strings and comments
+    // strings, comments ...
     if ( string_length(word) == 0 && lex_state_is_opening(lex_state, c) ) {
       starting_index = lex_state_current(lex_state);
       lex_state_expects_closing(lex_state) = lex_state_closer(lex_state, c);
     }
 
-    // anything inside a string, line ends, other non-space chars
+    // anything inside a string, line ends, non-space chars
     if ( lex_state_current_is_significant(lex_state, c) ) {
       starting_index = starting_index ? starting_index : (lex_state_current(lex_state));
       column = column ? column : (lex_state_column(lex_state));
@@ -110,7 +117,7 @@ Lexeme *lex_get_next_lexeme(LexState *lex_state) {
       }
     } else if ( lex_state_current_is_significant(lex_state, c) ) {
       // line ends usually significant of a statement end
-      if ( char_is_line_end(c) ) {
+      if ( char_is_line_end(c) || char_is_statement_end(c) ) {
         should_continue = false;
       // end of normal word sequence
       } else if ( lex_state_end_of_word(lex_state) ) {
