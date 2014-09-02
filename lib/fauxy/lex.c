@@ -27,8 +27,11 @@ List *lex(char *str) {
   LexState *lex_state = LexState_create(code);
 
   Lexeme *lexeme;
-  while( (lexeme = lex_get_next_lexeme(lex_state)) ) {
-    list_push(list, lexeme_to_token(lexeme));
+  while( lex_state_in_progress(lex_state) ) {
+    lexeme = lex_get_next_lexeme(lex_state);
+    if (lexeme) {
+      list_push(list, lexeme_to_token(lexeme));
+    }
   }
 
   // free some shit!
@@ -73,40 +76,49 @@ error:
 
 Lexeme *lex_get_next_lexeme(LexState *lex_state) {
   String *word = String_create("");
-  int length = lex_state_length(lex_state);
 
+  int starting_index = 0; // used to track progress against comments
   int column = 0;
-  int line =   lex_state_line(lex_state);
+  int line =   0;
   char c =     lex_state_current_char(lex_state);
   Boolean should_continue = true;
 
-  while ( lex_state_current(lex_state) < length && should_continue ) {
-    if ( string_length(word) == 0 && char_is_opening_bookends(c) ) {
-      lex_state_expects_closing(lex_state) = (c == '\'' ? FX_CLOSING_SINGLE_QUOTE : FX_CLOSING_DOUBLE_QUOTE);
+  while ( lex_state_in_progress(lex_state) && should_continue ) {
+    // strings and comments
+    if ( string_length(word) == 0 && lex_state_is_opening(lex_state, c) ) {
+      starting_index = lex_state_current(lex_state);
+      lex_state_expects_closing(lex_state) = lex_state_closer(lex_state, c);
     }
 
-    if ( lex_state_is_open(lex_state) || char_is_significant(c) ) {
-      column = column ? column: (lex_state_column(lex_state));
-      line = lex_state_line(lex_state);
+    // anything inside a string, line ends, other non-space chars
+    if ( lex_state_current_is_significant(lex_state, c) ) {
+      starting_index = starting_index ? starting_index : (lex_state_current(lex_state));
+      column = column ? column : (lex_state_column(lex_state));
+      line =   line   ? line   : (lex_state_line(lex_state));
       string_push(word, c);
     }
 
+    if ( char_is_line_end(c) ) {
+      lex_state_start_new_line(lex_state);
+    }
+
+    // check for termination of strings and other bookends that may contain spaces
     if ( lex_state_is_open(lex_state) ) {
-      // strings and comments
-      if ( string_length(word) > 1 && lex_state_will_close(lex_state, c) ) {
+      if ( (starting_index < lex_state_current(lex_state)) && lex_state_will_close(lex_state, c) ) {
         lex_state_close(lex_state);
         should_continue = false;
       }
-    } else if ( char_is_significant(c) ) {
+    } else if ( lex_state_current_is_significant(lex_state, c) ) {
+      // line ends usually significant of a statement end
       if ( char_is_line_end(c) ) {
-        lex_state_line(lex_state) ++;
-        lex_state_column(lex_state) = 0;
         should_continue = false;
+      // end of normal word sequence
       } else if ( lex_state_end_of_word(lex_state) ) {
         should_continue = false;
       }
     }
 
+    // move to next character
     lex_state_advance(lex_state);
     c = lex_state_current_char(lex_state);
   }

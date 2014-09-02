@@ -32,9 +32,6 @@ typedef enum {
   FX_TOKEN_DEFERRED_ARGUMENT,   // "_"
 
   FX_TOKEN_BLOCK_DECLARATION,   // "->"
-  FX_TOKEN_COMMENT_LINE_START,  // "//"
-  FX_TOKEN_COMMENT_BLOCK_START, // "/*"
-  FX_TOKEN_COMMENT_BLOCK_END,   // "*/"
   FX_TOKEN_INJECTOR_OPERATOR,   // "<<"
   FX_TOKEN_COMPOSER_OPERATOR,   // ">>"
 
@@ -49,36 +46,6 @@ typedef enum {
   FX_CLOSING_LINE_COMMENT,
   FX_CLOSING_BLOCK_COMMENT
 } ClosingBookend;
-
-// static char * TokenTypeDescriptions[] = {
-//   "NULL",
-//   "\n",
-//   ";",
-//
-//   "Number",
-//   "String",
-//
-//   ".",
-//   "(",
-//   "Arguments (",
-//   ")",
-//   "Arguments )",
-//   ",",
-//   "=",
-//   "{",
-//   "}",
-//   "_",
-//
-//   "->",
-//   "//",
-//   "/*",
-//   "*/",
-//   "<<",
-//   ">>",
-//
-//   "Global Id",
-//   "Id"
-// };
 
 typedef struct Token {
   TokenType  type;
