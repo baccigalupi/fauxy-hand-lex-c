@@ -92,7 +92,7 @@ Lexeme *lex_get_next_lexeme(LexState *lex_state) {
 
   while ( lex_state_in_progress(lex_state) && should_continue ) {
     // strings, comments ...
-    if ( string_length(word) == 0 && lex_state_is_opening(lex_state, c) ) {
+    if ( string_length(word) == 0 && !lex_state_is_open(lex_state) && lex_state_is_opening(lex_state, c) ) {
       starting_index = lex_state_current(lex_state);
       lex_state_expects_closing(lex_state) = lex_state_closer(lex_state, c);
     }
@@ -110,8 +110,12 @@ Lexeme *lex_get_next_lexeme(LexState *lex_state) {
     }
 
     // check for termination of strings and other bookends that may contain spaces
-    if ( lex_state_is_open(lex_state) ) {
-      if ( (starting_index < lex_state_current(lex_state)) && lex_state_will_close(lex_state, c) ) {
+    if ( lex_state_is_open(lex_state) && starting_index < lex_state_current(lex_state) ) {
+      // regexes are special, because there can be characters after the ending '/'
+      // so we have to switch the state
+      lex_state_transition_regex_if_needed(lex_state, c);
+
+      if ( lex_state_will_close(lex_state, c) ) {
         lex_state_close(lex_state);
         should_continue = false;
       }

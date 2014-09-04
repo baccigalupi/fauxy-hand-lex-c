@@ -357,6 +357,7 @@ error:
 
 char *test_regex() {
   List *list = lex(" /[a-z]/i ");
+
   mu_assert(list_length(list) == 1, "lex created wrong number of tokens");
 
   Token *token = get_token_from_list(list, 0);
@@ -379,6 +380,21 @@ char *test_regex_with_space() {
 
   mu_assert(object_type(token) == FX_TOKEN_REGEX, "lex did not build right token type for regex");
   mu_assert(strcmp(token_string_value(token),"/[a-z] [0-9]/i") == 0, "lex did not build right value for type regex");
+
+  return NULL;
+error:
+  return "failed";
+}
+
+char *test_basic_identifier() {
+  List *list = lex(" gerbil ");
+  mu_assert(list_length(list) == 1, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 0);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_ID, "lex did not build right token type for id");
+  mu_assert(strcmp(token_string_value(token),"gerbil") == 0, "lex did not build right value for type id");
 
   return NULL;
 error:
@@ -410,7 +426,9 @@ char *all_tests() {
   mu_run_test(test_statement_end);
 
   mu_run_test(test_regex);
-  // mu_run_test(test_regex_with_space);
+  mu_run_test(test_regex_with_space);
+
+  // mu_run_test(test_basic_identifier);
 
   return NULL;
 }

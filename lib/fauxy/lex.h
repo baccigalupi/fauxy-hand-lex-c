@@ -40,7 +40,9 @@ typedef struct LexState {
                                           ((((L)->expects_closing) == FX_CLOSING_BLOCK_COMMENT) && C == '*' &&    \
                                               lex_state_next_char(L) == '/')                                  ||  \
                                           ((((L)->expects_closing) == FX_CLOSING_LINE_COMMENT) &&                 \
-                                              lex_state_next_char(L) == '\n')                                     \
+                                              lex_state_next_char(L) == '\n')                                 ||  \
+                                          ((((L)->expects_closing) == FX_CLOSING_REGEX) &&                        \
+                                              lex_state_end_of_word(L))                                           \
                                         )                                                                         \
                                       )
 #define lex_state_close(L)                      (                                                                         \
@@ -56,16 +58,27 @@ typedef struct LexState {
 #define lex_state_is_opening(L, C)              (                                                                         \
                                                   char_is_string_bookend(C) ||                                            \
                                                   lex_state_opening_block_comment(L, C) ||                                \
-                                                  lex_state_opening_line_comment(L, C)                                    \
+                                                  lex_state_opening_line_comment(L, C) ||                                 \
+                                                  char_is_regex_bookend(C)                                                \
                                                 )
 
-#define lex_state_closer(L, C)                  (                                                                                               \
-                                                  C == '\'' ? FX_CLOSING_SINGLE_QUOTE :                                                         \
-                                                  (C == '"'  ? FX_CLOSING_DOUBLE_QUOTE :                                                        \
-                                                  (lex_state_opening_block_comment(L, C) ? FX_CLOSING_BLOCK_COMMENT : FX_CLOSING_LINE_COMMENT)  \
-                                                ))
+#define lex_state_closer(L, C)                  (C == '\'' ? FX_CLOSING_SINGLE_QUOTE :                                                        \
+                                                  (C == '"'  ? FX_CLOSING_DOUBLE_QUOTE :                                                      \
+                                                    (lex_state_opening_block_comment(L, C) ? FX_CLOSING_BLOCK_COMMENT :                       \
+                                                      (lex_state_opening_line_comment(L, C) ? FX_CLOSING_LINE_COMMENT: FX_OPENING_REGEX)      \
+                                                    )                                                                                         \
+                                                  )                                                                                           \
+                                                )
 
-#define lex_state_opened_comment(L)             ((lex_state_expects_closing(L) == FX_CLOSING_BLOCK_COMMENT) || (lex_state_expects_closing(L) == FX_CLOSING_LINE_COMMENT))
+#define lex_state_opened_comment(L)             (                                                                 \
+                                                  (lex_state_expects_closing(L) == FX_CLOSING_BLOCK_COMMENT) ||   \
+                                                  (lex_state_expects_closing(L) == FX_CLOSING_LINE_COMMENT)       \
+                                                )
+
+#define lex_state_terminating_regex(L, C)       (                                                                 \
+                                                  (lex_state_expects_closing(L) == FX_OPENING_REGEX) &&           \
+                                                  (C == '/')                                                      \
+                                                )
 
 #define lex_state_current_is_significant(L, C)  (                                                                 \
                                                   (!lex_state_opened_comment(L)) && (                             \
@@ -73,6 +86,8 @@ typedef struct LexState {
                                                     (lex_state_is_open(L))                                        \
                                                   )                                                               \
                                                 )
+
+#define lex_state_transition_regex_if_needed(L, C)  (lex_state_terminating_regex(L, C) && (lex_state_expects_closing(L) = FX_CLOSING_REGEX))
 
 #define lex_state_in_progress(L)                (lex_state_current(lex_state) < lex_state_length(lex_state))
 
