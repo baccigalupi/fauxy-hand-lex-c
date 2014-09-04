@@ -401,6 +401,21 @@ error:
   return "failed";
 }
 
+char *test_global_identifier() {
+  List *list = lex(" Gerbil ");
+  mu_assert(list_length(list) == 1, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 0);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_GLOBAL_ID, "lex did not build right token type for id");
+  mu_assert(strcmp(token_string_value(token),"Gerbil") == 0, "lex did not build right value for type id");
+
+  return NULL;
+error:
+  return "failed";
+}
+
 char *all_tests() {
   mu_suite_start();
 
@@ -428,7 +443,8 @@ char *all_tests() {
   mu_run_test(test_regex);
   mu_run_test(test_regex_with_space);
 
-  // mu_run_test(test_basic_identifier);
+  mu_run_test(test_basic_identifier);
+  mu_run_test(test_global_identifier);
 
   return NULL;
 }

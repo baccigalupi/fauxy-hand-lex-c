@@ -55,20 +55,28 @@ Token *lexeme_to_token(Lexeme *lexeme) {
   } else if ( char_is_regex_bookend(first_char) ) {
     type = FX_TOKEN_REGEX;
     value = String_create(word);
-    check(value, "string is NULL");
+    check(value, "token string value is NULL");
   } else if ( char_is_string_bookend(first_char) ) {
     type = FX_TOKEN_STRING;
     word[string_length(lexeme_word(lexeme)) - 1] = '\0';
     value = String_create((word+1));
-    check(value, "string is NULL");
-  } else {
+    check(value, "token string value is NULL");
+  } else if ( lexed_word_is_number(word) ) {
     type = FX_TOKEN_NUMBER;
     value = Number_create(word);
-    check(value, "number is NULL");
+    check(value, "token number is NULL");
+  } else if ( char_is_capitalized(first_char) ) {
+    type = FX_TOKEN_GLOBAL_ID;
+    value = String_create(word);
+    check(value, "token string value is NULL");
+  } else {
+    type = FX_TOKEN_ID;
+    value = String_create(word);
+    check(value, "token string value is NULL");
   }
 
   Token  *token =  Token_create(type);
-  check(token, "token is NULL");
+  check(token, "token token is NULL");
 
   object_value(token) = value;
   token_line(token) =   lexeme_line(lexeme);
@@ -142,6 +150,10 @@ Lexeme *lex_get_next_lexeme(LexState *lex_state) {
   Lexeme *lexeme = Lexeme_create(word, line, column);
 
   return lexeme;
+}
+
+Boolean lexed_word_is_number(char *word) {
+  return (Boolean)isdigit(word[0]);
 }
 
 Lexeme *Lexeme_create(String *word, int line, int column) {
