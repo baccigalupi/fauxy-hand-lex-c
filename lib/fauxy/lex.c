@@ -153,7 +153,10 @@ Lexeme *lex_get_next_lexeme(LexState *lex_state) {
 }
 
 Boolean lexed_word_is_number(char *word) {
-  return (Boolean)isdigit(word[0]);
+  Boolean retval = false;
+  retval = isdigit(word[0]) || word[0] == '-';
+
+  return retval;
 }
 
 Lexeme *Lexeme_create(String *word, int line, int column) {

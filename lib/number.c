@@ -14,7 +14,7 @@ Number *Number_create(const char *str) {
   unsigned int is_float = 0;
   unsigned int i;
   for (i = 0; i < strlen(str); i++) {
-    if (str[i] == '.') { is_float = 1; }
+    if (str[i] == '.' || str[i] == 'E') { is_float = 1; }
   }
 
   number_type(number) = is_float ? FloatType : IntegerType;
