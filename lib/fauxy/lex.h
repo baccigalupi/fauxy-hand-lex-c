@@ -21,7 +21,6 @@ typedef struct LexState {
 #define char_is_regex_bookend(C)    (C == '/')
 #define char_is_capitalized(C)      (isupper(C))
 
-
 #define lex_state_current(L)          ((L)->current)
 #define lex_state_line(L)             ((L)->line)
 #define lex_state_column(L)           ((L)->column)
@@ -107,7 +106,7 @@ List      *lex(char *code);
 
 LexState  *LexState_create(String *code);
 Lexeme    *lex_get_next_lexeme(LexState *lex_state);
-Token     *lexeme_to_token(Lexeme *lexeme);
+Token     *lexeme_to_tokens(Lexeme *lexeme);
 Boolean    lexed_word_is_number(char *word);
 
 Lexeme    *Lexeme_create(String *word, int line, int column);

@@ -30,7 +30,7 @@ List *lex(char *str) {
   while( lex_state_in_progress(lex_state) ) {
     lexeme = lex_get_next_lexeme(lex_state);
     if (lexeme) {
-      list_push(list, lexeme_to_token(lexeme));
+      list_push(list, lexeme_to_tokens(lexeme));
     }
   }
 
@@ -42,7 +42,7 @@ error:
   return NULL;
 }
 
-Token *lexeme_to_token(Lexeme *lexeme) {
+Token *lexeme_to_tokens(Lexeme *lexeme) {
   TokenType type;
   char *word = string_value(lexeme_word(lexeme));
   void *value = NULL;
@@ -153,10 +153,45 @@ Lexeme *lex_get_next_lexeme(LexState *lex_state) {
 }
 
 Boolean lexed_word_is_number(char *word) {
-  Boolean retval = false;
-  retval = isdigit(word[0]) || word[0] == '-';
+  Boolean is_valid = isdigit(word[0]) || word[0] == '-';
+  if (!is_valid) { return is_valid; }
 
-  return retval;
+  int i;
+  int length = strlen(word);
+  int dot_count = 0;
+  int exp_count = 0;
+  for(i = 1; i < length; i++) {
+    if ( !is_valid ) { break; }
+    if ( isdigit(word[i]) ) { continue; }
+
+    // test for decimal ness
+    if ( word[i] == '.' ) {
+      dot_count ++;
+      if ( dot_count > 1 ) {
+        is_valid = false;
+      }
+      continue;
+    }
+
+    if ( word[i] == 'E' ) {
+      if ( i+1 < length && word[i+1] == '-' ) {
+        exp_count ++;
+        if ( exp_count > 1 ) {
+          is_valid = false;
+        }
+      } else {
+        is_valid = false;
+      }
+      i++; // advance beyond -
+      continue;
+    }
+
+    if ( !isdigit(word[i]) ) {
+      is_valid = false;
+    }
+  }
+
+  return is_valid;
 }
 
 Lexeme *Lexeme_create(String *word, int line, int column) {

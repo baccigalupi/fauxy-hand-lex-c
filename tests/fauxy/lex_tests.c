@@ -446,6 +446,38 @@ error:
   return "failed";
 }
 
+char *test_ids_starting_as_numbers() {
+  List *list = lex(" 123foo");
+
+  mu_assert(list_length(list) == 1, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 0);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_ID,  "lex did not build right token type for numeric starting identifier");
+  mu_assert(strcmp(token_string_value(token), "123foo") == 0, "lex did not build right value for numeric starting identifier");
+
+  return NULL;
+error:
+  return "failed";
+}
+
+char *test_identifier_with_dot_method_call() {
+  List *list = lex(" file.open ");
+  printf("list_length %d\n", list_length(list));
+  mu_assert(list_length(list) == 3, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 0);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_ID, "lex did not build right token type for id before dot identifier");
+  mu_assert(strcmp(token_string_value(token), "file") == 0, "lex did not build right value for id before dot identifier");
+
+  return NULL;
+error:
+  return "failed";
+}
+
 char *all_tests() {
   mu_suite_start();
 
@@ -477,6 +509,9 @@ char *all_tests() {
   mu_run_test(test_global_identifier);
   mu_run_test(test_number_starting_with_minus_sign);
   mu_run_test(test_exponential_numbers);
+  mu_run_test(test_ids_starting_as_numbers);
+
+  // mu_run_test(test_identifier_with_dot_method_call);
 
   return NULL;
 }
