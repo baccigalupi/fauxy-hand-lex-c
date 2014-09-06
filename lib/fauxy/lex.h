@@ -20,13 +20,28 @@ typedef struct LexState {
 #define char_is_string_bookend(C)   (C == '\'' || C == '"')
 #define char_is_regex_bookend(C)    (C == '/')
 #define char_is_capitalized(C)      (isupper(C))
+#define char_is_method_selector(C)  (C == '.')
+#define char_is_opens_group(C)      (C == '(')
+#define char_is_closes_group(C)     (C == ')')
+#define char_is_special(C)          ((C) == ',' || (C) == '(' || (C) == ')')
+
 
 #define lex_state_current(L)          ((L)->current)
 #define lex_state_line(L)             ((L)->line)
 #define lex_state_column(L)           ((L)->column)
 #define lex_state_length(L)           (((L)->code)->length)
 #define lex_state_current_char(L)     (((L)->code)->value[lex_state_current(L)])
-#define lex_state_end_of_word(L)      ((lex_state_next_char(L)) && (isspace(lex_state_next_char(L)) || lex_state_next_char(L) == ';'))
+
+#define lex_state_end_of_word(L)      (                                                                           \
+                                        (lex_state_next_char(L)) && (                                             \
+                                          (isspace(lex_state_next_char(L))) ||                                    \
+                                          (lex_state_next_char(L) == ';')   ||                                    \
+                                          (lex_state_next_char(L) == ',')   ||                                    \
+                                          (lex_state_next_char(L) == '(')   ||                                    \
+                                          (lex_state_next_char(L) == ')')                                         \
+                                        )                                                                         \
+                                      )
+
 #define lex_state_next_char(L)        (( lex_state_length(L) > lex_state_current(L) ) ? (((L)->code)->value[lex_state_current(L) + 1]) : '\0')
 #define lex_state_advance(L)          ((++ lex_state_current(lex_state)) && (++ lex_state_column(L)))
 #define lex_state_expects_closing(L)  ((L)->expects_closing)
@@ -91,6 +106,17 @@ typedef struct LexState {
 
 #define lex_state_in_progress(L)                (lex_state_current(lex_state) < lex_state_length(lex_state))
 
+#define word_is_method_selected_by_char(S, C)   (                                                     \
+                                                    char_is_method_selector(C) &&                     \
+                                                    string_length(S) > 0 &&                           \
+                                                    !lexed_word_is_number(string_value(S))            \
+                                                )
+
+#define word_is_method_selector(S, C)           (                                                     \
+                                                    char_is_method_selector(C) &&                     \
+                                                    string_length(S) == 1                             \
+                                                )
+
 typedef struct Lexeme {
   String *word;
   int line;
@@ -106,7 +132,7 @@ List      *lex(char *code);
 
 LexState  *LexState_create(String *code);
 Lexeme    *lex_get_next_lexeme(LexState *lex_state);
-Token     *lexeme_to_tokens(Lexeme *lexeme);
+void       list_push_tokens_from_lexeme(List *list, Lexeme *lexeme);
 Boolean    lexed_word_is_number(char *word);
 
 Lexeme    *Lexeme_create(String *word, int line, int column);

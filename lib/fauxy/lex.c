@@ -8,13 +8,13 @@
 #include "../list.h"
 
 LexState *LexState_create(String *code) {
-  LexState *state = calloc(1, sizeof(LexState));
-  check_mem(state);
-  state->code = code;
-  state->line = 1;
-  state->column = 1;
+  LexState *lex_state = calloc(1, sizeof(LexState));
+  check_mem(lex_state);
+  lex_state->code = code;
+  lex_state->line = 1;
+  lex_state->column = 1;
 
-  return state;
+  return lex_state;
 error:
   return NULL;
 }
@@ -26,23 +26,25 @@ List *lex(char *str) {
   String   *code =      String_create(str);
   LexState *lex_state = LexState_create(code);
 
-  Lexeme *lexeme;
+  Lexeme *lexeme = NULL;
   while( lex_state_in_progress(lex_state) ) {
+    pfree(lexeme);
     lexeme = lex_get_next_lexeme(lex_state);
     if (lexeme) {
-      list_push(list, lexeme_to_tokens(lexeme));
+      list_push_tokens_from_lexeme(list, lexeme);
     }
   }
 
+  pfree(code);
+  pfree(lex_state);
   // free some shit!
-  // lex_state, etc
 
   return list;
 error:
   return NULL;
 }
 
-Token *lexeme_to_tokens(Lexeme *lexeme) {
+void list_push_tokens_from_lexeme(List *list, Lexeme *lexeme) {
   TokenType type;
   char *word = string_value(lexeme_word(lexeme));
   void *value = NULL;
@@ -52,12 +54,19 @@ Token *lexeme_to_tokens(Lexeme *lexeme) {
     type = FX_TOKEN_LINE_END;
   } else if ( char_is_statement_end(first_char) ) {
     type = FX_TOKEN_STATEMENT_END;
+  } else if ( char_is_method_selector(first_char) ) {
+    type = FX_TOKEN_ATTRIBUTE_SELECTOR;
+  } else if ( char_is_opens_group(first_char) ) {
+    type = FX_TOKEN_GROUP_START;
+  } else if ( char_is_closes_group(first_char) ) {
+    type = FX_TOKEN_GROUP_END;
   } else if ( char_is_regex_bookend(first_char) ) {
     type = FX_TOKEN_REGEX;
     value = String_create(word);
     check(value, "token string value is NULL");
   } else if ( char_is_string_bookend(first_char) ) {
     type = FX_TOKEN_STRING;
+    // shortening string contents to remove the quotation marks
     word[string_length(lexeme_word(lexeme)) - 1] = '\0';
     value = String_create((word+1));
     check(value, "token string value is NULL");
@@ -82,11 +91,11 @@ Token *lexeme_to_tokens(Lexeme *lexeme) {
   token_line(token) =   lexeme_line(lexeme);
   token_column(token) = lexeme_column(lexeme);
 
-  // clean up some stuff, lexeme ???
+  list_push(list, token);
 
-  return token;
+  pfree(lexeme_word(lexeme)); // because we created all new strings
 error:
-  return NULL;
+  return;
 }
 
 Lexeme *lex_get_next_lexeme(LexState *lex_state) {
@@ -105,7 +114,10 @@ Lexeme *lex_get_next_lexeme(LexState *lex_state) {
       lex_state_expects_closing(lex_state) = lex_state_closer(lex_state, c);
     }
 
-    // anything inside a string, line ends, non-space chars
+    if ( word_is_method_selected_by_char(word, c) ) {
+      break;
+    }
+
     if ( lex_state_current_is_significant(lex_state, c) ) {
       starting_index = starting_index ? starting_index : (lex_state_current(lex_state));
       column = column ? column : (lex_state_column(lex_state));
@@ -128,11 +140,10 @@ Lexeme *lex_get_next_lexeme(LexState *lex_state) {
         should_continue = false;
       }
     } else if ( lex_state_current_is_significant(lex_state, c) ) {
-      // line ends usually significant of a statement end
-      if ( char_is_line_end(c) || char_is_statement_end(c) ) {
-        should_continue = false;
-      // end of normal word sequence
-      } else if ( lex_state_end_of_word(lex_state) ) {
+      if ( char_is_line_end(c) || char_is_statement_end(c) || // line ends usually significant of a statement end
+           lex_state_end_of_word(lex_state) ||                // end of normal word sequence
+           word_is_method_selector(word, c)  ||               // '.'
+           char_is_special(c) ) {                             // '(' ')' ','
         should_continue = false;
       }
     }

@@ -464,7 +464,6 @@ error:
 
 char *test_identifier_with_dot_method_call() {
   List *list = lex(" file.open ");
-  printf("list_length %d\n", list_length(list));
   mu_assert(list_length(list) == 3, "lex created wrong number of tokens");
 
   Token *token = get_token_from_list(list, 0);
@@ -472,6 +471,46 @@ char *test_identifier_with_dot_method_call() {
 
   mu_assert(object_type(token) == FX_TOKEN_ID, "lex did not build right token type for id before dot identifier");
   mu_assert(strcmp(token_string_value(token), "file") == 0, "lex did not build right value for id before dot identifier");
+
+  token = get_token_from_list(list, 1);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_ATTRIBUTE_SELECTOR, "lex did not build right token type for dot");
+  mu_assert(object_value(token) == NULL, "lex did not build right value for id for dot");
+
+  token = get_token_from_list(list, 2);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_ID, "lex did not build right token type for attribute after dot selector");
+  mu_assert(strcmp(token_string_value(token), "open") == 0, "lex did not build right value for attribute after dot selector");
+
+  return NULL;
+error:
+  return "failed";
+}
+
+char *test_identifier_with_dot_method_call_and_arguments() {
+  List *list = lex(" file.open('w') ");
+  printf("list_length %d\n", list_length(list));
+  mu_assert(list_length(list) == 6, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 3);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_GROUP_START, "lex did not build right token type for open paren");
+  mu_assert(object_value(token) == NULL, "lex did not build right value for open paren");
+
+  token = get_token_from_list(list, 4);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_STRING, "lex did not build right token type for string inside of parens");
+  mu_assert(strcmp(token_string_value(token), "w"), "lex did not build right value for string inside of parens");
+
+  token = get_token_from_list(list, 5);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_GROUP_END, "lex did not build right token type for attribute after dot selector");
+  mu_assert(object_value(token) == NULL, "lex did not build right value for attribute after dot selector");
 
   return NULL;
 error:
@@ -511,7 +550,8 @@ char *all_tests() {
   mu_run_test(test_exponential_numbers);
   mu_run_test(test_ids_starting_as_numbers);
 
-  // mu_run_test(test_identifier_with_dot_method_call);
+  mu_run_test(test_identifier_with_dot_method_call);
+  // mu_run_test(test_identifier_with_dot_method_call_and_arguments);
 
   return NULL;
 }
