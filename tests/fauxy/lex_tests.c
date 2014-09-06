@@ -603,7 +603,6 @@ char *test_setting_local_variables() {
   mu_assert(object_type(token) == FX_TOKEN_STRING, "lex did not build right token type for string inside of parens");
   mu_assert(strcmp(token_string_value(token), "bar") == 0, "lex did not build right value for string inside of parens");
 
-
   return NULL;
 error:
   return "failed";
@@ -707,6 +706,46 @@ error:
   return "failed";
 }
 
+char *test_block_start_statement_and_end() {
+  List *list = lex(" list.each -> {puts 'gerbil'}");
+
+  mu_assert(list_length(list) == 8, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 3);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_BLOCK_DECLARATION, "lex did not build right token type for block declaration");
+  mu_assert(object_value(token) == NULL, "lex did not build right value for block declaration");
+
+  token = get_token_from_list(list, 4);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_BLOCK_START, "lex did not build right token type for block start");
+  mu_assert(object_value(token) == NULL, "lex did not build right value for block start");
+
+  token = get_token_from_list(list, 5);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_ID, "lex did not build right token type for id");
+  mu_assert(strcmp(token_string_value(token), "puts") == 0, "lex did not build right value for id");
+
+  token = get_token_from_list(list, 6);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_STRING, "lex did not build right token type for string");
+  mu_assert(strcmp(token_string_value(token), "gerbil") == 0, "lex did not build right value for string");
+
+  token = get_token_from_list(list, 7);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_BLOCK_END, "lex did not build right token type for block end");
+  mu_assert(object_value(token) == NULL, "lex did not build right value for block end");
+
+  return NULL;
+error:
+  return "failed";
+}
+
 char *all_tests() {
   mu_suite_start();
 
@@ -753,6 +792,7 @@ char *all_tests() {
   mu_run_test(test_attribute_assignment);
 
   mu_run_test(test_block_start_no_arguments);
+  mu_run_test(test_block_start_statement_and_end);
 
   return NULL;
 }

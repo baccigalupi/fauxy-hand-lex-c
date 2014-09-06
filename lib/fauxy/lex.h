@@ -32,9 +32,10 @@ typedef struct LexState {
 
 #define char_is_syntax(C)           (                                         \
                                       char_is_separator(C) ||                 \
-                                      char_opens_group(C) ||                  \
+                                      char_opens_group(C)  ||                 \
                                       char_closes_group(C) ||                 \
-                                      char_opens_block(C)                     \
+                                      char_opens_block(C)  ||                 \
+                                      char_closes_block(C)                    \
                                     )
 
 

@@ -64,6 +64,8 @@ void list_push_tokens_from_lexeme(List *list, Lexeme *lexeme) {
     type = FX_TOKEN_COMMA;
   } else if ( char_opens_block(first_char) ) {
     type = FX_TOKEN_BLOCK_START;
+  } else if ( char_closes_block(first_char) ) {
+    type = FX_TOKEN_BLOCK_END;
   } else if ( char_is_setter(first_char) && string_length(lexeme_word(lexeme)) == 1 ) {
     type = FX_TOKEN_LOCAL_SETTER;
   } else if ( char_is_colon(first_char) && string_length(lexeme_word(lexeme)) == 1 ) {
