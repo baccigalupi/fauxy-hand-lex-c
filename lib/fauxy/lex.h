@@ -23,7 +23,9 @@ typedef struct LexState {
 #define char_is_method_selector(C)  (C == '.')
 #define char_is_opens_group(C)      (C == '(')
 #define char_is_closes_group(C)     (C == ')')
-#define char_is_special(C)          ((C) == ',' || (C) == '(' || (C) == ')')
+#define char_is_setter(C)           (C == '=')
+#define char_is_separator(C)        (C == ',')
+#define char_is_syntax(C)           (char_is_separator(C) || char_is_opens_group(C) || char_is_closes_group(C))
 
 
 #define lex_state_current(L)          ((L)->current)
@@ -36,9 +38,7 @@ typedef struct LexState {
                                         (lex_state_next_char(L)) && (                                             \
                                           (isspace(lex_state_next_char(L))) ||                                    \
                                           (lex_state_next_char(L) == ';')   ||                                    \
-                                          (lex_state_next_char(L) == ',')   ||                                    \
-                                          (lex_state_next_char(L) == '(')   ||                                    \
-                                          (lex_state_next_char(L) == ')')                                         \
+                                          (char_is_syntax(lex_state_next_char(L)))                                \
                                         )                                                                         \
                                       )
 

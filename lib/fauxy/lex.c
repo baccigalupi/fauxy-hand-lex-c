@@ -60,6 +60,10 @@ void list_push_tokens_from_lexeme(List *list, Lexeme *lexeme) {
     type = FX_TOKEN_GROUP_START;
   } else if ( char_is_closes_group(first_char) ) {
     type = FX_TOKEN_GROUP_END;
+  } else if ( char_is_separator(first_char) ) {
+    type = FX_TOKEN_COMMA;
+  } else if ( char_is_setter(first_char) && string_length(lexeme_word(lexeme)) == 1 ) {
+    type = FX_TOKEN_SETTER;
   } else if ( char_is_regex_bookend(first_char) ) {
     type = FX_TOKEN_REGEX;
     value = String_create(word);
@@ -143,7 +147,7 @@ Lexeme *lex_get_next_lexeme(LexState *lex_state) {
       if ( char_is_line_end(c) || char_is_statement_end(c) || // line ends usually significant of a statement end
            lex_state_end_of_word(lex_state) ||                // end of normal word sequence
            word_is_method_selector(word, c)  ||               // '.'
-           char_is_special(c) ) {                             // '(' ')' ','
+           char_is_syntax(c) ) {                              // '(' ')' ','
         should_continue = false;
       }
     }

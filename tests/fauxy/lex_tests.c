@@ -505,7 +505,7 @@ error:
   return "failed";
 }
 
-char *test_identifier_with_dot_method_call_and_arguments() {
+char *test_identifier_with_dot_method_call_and_argument() {
   List *list = lex(" file.open('w') ");
   mu_assert(list_length(list) == 6, "lex created wrong number of tokens");
 
@@ -526,6 +526,84 @@ char *test_identifier_with_dot_method_call_and_arguments() {
 
   mu_assert(object_type(token) == FX_TOKEN_GROUP_END, "lex did not build right token type for attribute after dot selector");
   mu_assert(object_value(token) == NULL, "lex did not build right value for attribute after dot selector");
+
+  return NULL;
+error:
+  return "failed";
+}
+
+char *test_identifier_with_dot_method_call_and_arguments() {
+  List *list = lex(" gerbil.talk('squeak','bark') ");
+  mu_assert(list_length(list) == 8, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 5);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_COMMA, "lex did not build right token type for comma");
+  mu_assert(object_value(token) == NULL, "lex did not build right value for comma");
+
+  token = get_token_from_list(list, 6);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_STRING, "lex did not build right token type for string inside of parens");
+  mu_assert(strcmp(token_string_value(token), "bark") == 0, "lex did not build right value for string inside of parens");
+
+  token = get_token_from_list(list, 7);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_GROUP_END, "lex did not build right token type for attribute after dot selector");
+  mu_assert(object_value(token) == NULL, "lex did not build right value for attribute after dot selector");
+
+  return NULL;
+error:
+  return "failed";
+}
+
+char *test_setting_local_variables() {
+  List *list = lex(" foo = 'bar' ");
+  mu_assert(list_length(list) == 3, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 0);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_ID, "lex did not build right token type for id before dot identifier");
+  mu_assert(strcmp(token_string_value(token), "foo") == 0, "lex did not build right value for id before dot identifier");
+
+  token = get_token_from_list(list, 1);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_SETTER, "lex did not build right token type for setter");
+  mu_assert(object_value(token) == NULL, "lex did not build right value for open paren");
+
+
+  token = get_token_from_list(list, 2);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_STRING, "lex did not build right token type for string inside of parens");
+  mu_assert(strcmp(token_string_value(token), "bar") == 0, "lex did not build right value for string inside of parens");
+
+
+  return NULL;
+error:
+  return "failed";
+}
+
+
+char *test_ids_can_start_with_setter() {
+  List *list = lex(" foo =bar ");
+  mu_assert(list_length(list) == 2, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 0);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_ID, "lex did not build right token type for id before dot identifier");
+  mu_assert(strcmp(token_string_value(token), "foo") == 0, "lex did not build right value for id before dot identifier");
+
+  token = get_token_from_list(list, 1);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_ID, "lex did not build right token type for string inside of parens");
+  mu_assert(strcmp(token_string_value(token), "=bar") == 0, "lex did not build right value for string inside of parens");
 
   return NULL;
 error:
@@ -567,7 +645,14 @@ char *all_tests() {
   mu_run_test(test_ids_with_hyphens_and_underscores);
 
   mu_run_test(test_identifier_with_dot_method_call);
+  mu_run_test(test_identifier_with_dot_method_call_and_argument);
   mu_run_test(test_identifier_with_dot_method_call_and_arguments);
+
+  mu_run_test(test_setting_local_variables);
+  mu_run_test(test_ids_can_start_with_setter);
+
+  // mu_run_test(test_atom);
+  // mu_run_test(test_attribute_assignment);
 
   return NULL;
 }
