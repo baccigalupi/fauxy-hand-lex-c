@@ -56,18 +56,22 @@ void list_push_tokens_from_lexeme(List *list, Lexeme *lexeme) {
     type = FX_TOKEN_STATEMENT_END;
   } else if ( char_is_method_selector(first_char) ) {
     type = FX_TOKEN_ATTRIBUTE_SELECTOR;
-  } else if ( char_is_opens_group(first_char) ) {
+  } else if ( char_opens_group(first_char) ) {
     type = FX_TOKEN_GROUP_START;
-  } else if ( char_is_closes_group(first_char) ) {
+  } else if ( char_closes_group(first_char) ) {
     type = FX_TOKEN_GROUP_END;
   } else if ( char_is_separator(first_char) ) {
     type = FX_TOKEN_COMMA;
+  } else if ( char_opens_block(first_char) ) {
+    type = FX_TOKEN_BLOCK_START;
   } else if ( char_is_setter(first_char) && string_length(lexeme_word(lexeme)) == 1 ) {
     type = FX_TOKEN_LOCAL_SETTER;
   } else if ( char_is_colon(first_char) && string_length(lexeme_word(lexeme)) == 1 ) {
     type = FX_TOKEN_ATTRIBUTE_SETTER;
   } else if ( char_is_deferred_arg(first_char) && string_length(lexeme_word(lexeme)) == 1 ) {
     type = FX_TOKEN_DEFERRED_ARGUMENT;
+  } else if ( word_is_block_declaration(word) ) {
+    type = FX_TOKEN_BLOCK_DECLARATION;
   } else if ( char_is_regex_bookend(first_char) ) {
     type = FX_TOKEN_REGEX;
     value = String_create(word);
@@ -125,6 +129,7 @@ Lexeme *lex_get_next_lexeme(LexState *lex_state) {
       lex_state_expects_closing(lex_state) = lex_state_closer(lex_state, c);
     }
 
+    // TODO: move down into the lookahead area??
     if ( word_is_method_selected_by_char(word, c) ) {
       break;
     }

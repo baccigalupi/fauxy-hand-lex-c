@@ -21,8 +21,10 @@ typedef struct LexState {
 #define char_is_regex_bookend(C)    (C == '/')
 #define char_is_capitalized(C)      (isupper(C))
 #define char_is_method_selector(C)  (C == '.')
-#define char_is_opens_group(C)      (C == '(')
-#define char_is_closes_group(C)     (C == ')')
+#define char_opens_group(C)         (C == '(')
+#define char_closes_group(C)        (C == ')')
+#define char_opens_block(C)         (C == '{')
+#define char_closes_block(C)        (C == '}')
 #define char_is_setter(C)           (C == '=')
 #define char_is_separator(C)        (C == ',')
 #define char_is_colon(C)            (C == ':')
@@ -30,8 +32,9 @@ typedef struct LexState {
 
 #define char_is_syntax(C)           (                                         \
                                       char_is_separator(C) ||                 \
-                                      char_is_opens_group(C) ||               \
-                                      char_is_closes_group(C)                 \
+                                      char_opens_group(C) ||                  \
+                                      char_closes_group(C) ||                 \
+                                      char_opens_block(C)                     \
                                     )
 
 
@@ -123,6 +126,8 @@ typedef struct LexState {
                                                     char_is_method_selector(C) &&                     \
                                                     string_length(S) == 1                             \
                                                 )
+
+#define word_is_block_declaration(W)            (strcmp(W, "->") == 0)
 
 typedef struct Lexeme {
   String *word;

@@ -673,6 +673,39 @@ error:
   return "failed";
 }
 
+char *test_block_start_no_arguments() {
+  List *list = lex(" list.each ->{ \n");
+
+  mu_assert(list_length(list) == 6, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 2);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_ID, "lex did not build right token type for id");
+  mu_assert(strcmp(token_string_value(token), "each") == 0, "lex did not build right value for id");
+
+  token = get_token_from_list(list, 3);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_BLOCK_DECLARATION, "lex did not build right token type for block declaration");
+  mu_assert(object_value(token) == NULL, "lex did not build right value for block declaration");
+
+  token = get_token_from_list(list, 4);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_BLOCK_START, "lex did not build right token type for block start");
+  mu_assert(object_value(token) == NULL, "lex did not build right value for block start");
+
+  token = get_token_from_list(list, 5);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_LINE_END, "lex did not build right token type for line end");
+  mu_assert(object_value(token) == NULL, "lex did not build right value for line end");
+
+  return NULL;
+error:
+  return "failed";
+}
 
 char *all_tests() {
   mu_suite_start();
@@ -718,6 +751,8 @@ char *all_tests() {
 
   mu_run_test(test_atom);
   mu_run_test(test_attribute_assignment);
+
+  mu_run_test(test_block_start_no_arguments);
 
   return NULL;
 }
