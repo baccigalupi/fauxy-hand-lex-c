@@ -27,7 +27,8 @@ typedef enum {
   FX_TOKEN_GROUP_END,           // ")"
   FX_TOKEN_ARGUMENTS_END,
   FX_TOKEN_COMMA,               // ","
-  FX_TOKEN_SETTER,              // "="
+  FX_TOKEN_LOCAL_SETTER,        // "="
+  FX_TOKEN_ATTRIBUTE_SETTER,    // ":"
   FX_TOKEN_BLOCK_START,         // "{"
   FX_TOKEN_BLOCK_END,           // "}"
   FX_TOKEN_DEFERRED_ARGUMENT,   // "_"
@@ -37,7 +38,8 @@ typedef enum {
   FX_TOKEN_COMPOSER_OPERATOR,   // ">>"
 
   FX_TOKEN_GLOBAL_ID,           // starts with uppercase
-  FX_TOKEN_ID                   // method calls and variable names
+  FX_TOKEN_ID,                  // method calls and variable names
+  FX_TOKEN_ATOM                 // starts with :
 } TokenType;
 
 typedef enum {

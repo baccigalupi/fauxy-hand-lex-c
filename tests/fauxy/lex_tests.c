@@ -572,7 +572,7 @@ char *test_setting_local_variables() {
   token = get_token_from_list(list, 1);
   check(token, "token was not attached to node");
 
-  mu_assert(object_type(token) == FX_TOKEN_SETTER, "lex did not build right token type for setter");
+  mu_assert(object_type(token) == FX_TOKEN_LOCAL_SETTER, "lex did not build right token type for setter");
   mu_assert(object_value(token) == NULL, "lex did not build right value for open paren");
 
 
@@ -609,6 +609,49 @@ char *test_ids_can_start_with_setter() {
 error:
   return "failed";
 }
+
+char *test_atom() {
+  List *list = lex(" :bar ");
+  mu_assert(list_length(list) == 1, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 0);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_ATOM, "lex did not build right token type for atom");
+  mu_assert(strcmp(token_string_value(token), "bar") == 0, "lex did not build right value for atom");
+
+  return NULL;
+error:
+  return "failed";
+}
+
+char *test_attribute_assignment() {
+  List *list = lex(" foo: bar ");
+  mu_assert(list_length(list) == 3, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 0);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_ID, "lex did not build right token type for id");
+  mu_assert(strcmp(token_string_value(token), "foo") == 0, "lex did not build right value for id");
+
+  token = get_token_from_list(list, 1);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_ATTRIBUTE_SETTER, "lex did not build right token type for atom");
+  mu_assert(object_value(token) == NULL, "lex did not build right value for id");
+
+  token = get_token_from_list(list, 2);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_ID, "lex did not build right token type for atom");
+  mu_assert(strcmp(token_string_value(token), "bar") == 0, "lex did not build right value for id");
+
+  return NULL;
+error:
+  return "failed";
+}
+
 
 char *all_tests() {
   mu_suite_start();
@@ -651,8 +694,8 @@ char *all_tests() {
   mu_run_test(test_setting_local_variables);
   mu_run_test(test_ids_can_start_with_setter);
 
-  // mu_run_test(test_atom);
-  // mu_run_test(test_attribute_assignment);
+  mu_run_test(test_atom);
+  mu_run_test(test_attribute_assignment);
 
   return NULL;
 }

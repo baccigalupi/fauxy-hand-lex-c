@@ -25,7 +25,13 @@ typedef struct LexState {
 #define char_is_closes_group(C)     (C == ')')
 #define char_is_setter(C)           (C == '=')
 #define char_is_separator(C)        (C == ',')
-#define char_is_syntax(C)           (char_is_separator(C) || char_is_opens_group(C) || char_is_closes_group(C))
+#define char_is_colon(C)            (C == ':')
+
+#define char_is_syntax(C)           (                                         \
+                                      char_is_separator(C) ||                 \
+                                      char_is_opens_group(C) ||               \
+                                      char_is_closes_group(C)                 \
+                                    )
 
 
 #define lex_state_current(L)          ((L)->current)

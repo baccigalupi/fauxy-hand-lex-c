@@ -63,15 +63,16 @@ void list_push_tokens_from_lexeme(List *list, Lexeme *lexeme) {
   } else if ( char_is_separator(first_char) ) {
     type = FX_TOKEN_COMMA;
   } else if ( char_is_setter(first_char) && string_length(lexeme_word(lexeme)) == 1 ) {
-    type = FX_TOKEN_SETTER;
+    type = FX_TOKEN_LOCAL_SETTER;
+  } else if ( char_is_colon(first_char) && string_length(lexeme_word(lexeme)) == 1 ) {
+    type = FX_TOKEN_ATTRIBUTE_SETTER;
   } else if ( char_is_regex_bookend(first_char) ) {
     type = FX_TOKEN_REGEX;
     value = String_create(word);
     check(value, "token string value is NULL");
   } else if ( char_is_string_bookend(first_char) ) {
     type = FX_TOKEN_STRING;
-    // shortening string contents to remove the quotation marks
-    word[string_length(lexeme_word(lexeme)) - 1] = '\0';
+    word[string_length(lexeme_word(lexeme)) - 1] = '\0'; // shortening string contents to remove the quotation marks
     value = String_create((word+1));
     check(value, "token string value is NULL");
   } else if ( lexed_word_is_number(word) ) {
@@ -81,6 +82,10 @@ void list_push_tokens_from_lexeme(List *list, Lexeme *lexeme) {
   } else if ( char_is_capitalized(first_char) ) {
     type = FX_TOKEN_GLOBAL_ID;
     value = String_create(word);
+    check(value, "token string value is NULL");
+  } else if ( char_is_colon(first_char) ) {
+    type = FX_TOKEN_ATOM;
+    value = String_create((word+1));
     check(value, "token string value is NULL");
   } else {
     type = FX_TOKEN_ID;
@@ -144,10 +149,11 @@ Lexeme *lex_get_next_lexeme(LexState *lex_state) {
         should_continue = false;
       }
     } else if ( lex_state_current_is_significant(lex_state, c) ) {
-      if ( char_is_line_end(c) || char_is_statement_end(c) || // line ends usually significant of a statement end
-           lex_state_end_of_word(lex_state) ||                // end of normal word sequence
-           word_is_method_selector(word, c)  ||               // '.'
-           char_is_syntax(c) ) {                              // '(' ')' ','
+      if ( char_is_line_end(c) || char_is_statement_end(c) ||         // line ends usually significant of a statement end
+           lex_state_end_of_word(lex_state) ||                        // end of normal word sequence
+           word_is_method_selector(word, c)  ||                       // '.'
+           char_is_syntax(c) ||                                       // '(' ')' ','
+           char_is_colon(lex_state_next_char(lex_state)) ) {          // : appearing after first char breaks the word                  
         should_continue = false;
       }
     }
