@@ -34,9 +34,7 @@ typedef enum {
   FX_TOKEN_DEFERRED_ARGUMENT,   // "_"
 
   FX_TOKEN_BLOCK_DECLARATION,   // "->"
-  FX_TOKEN_INJECTOR_OPERATOR,   // "<<"
-  FX_TOKEN_COMPOSER_OPERATOR,   // ">>"
-
+  
   FX_TOKEN_GLOBAL_ID,           // starts with uppercase
   FX_TOKEN_ID,                  // method calls and variable names
   FX_TOKEN_ATOM                 // starts with :

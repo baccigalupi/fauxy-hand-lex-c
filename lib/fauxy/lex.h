@@ -26,6 +26,7 @@ typedef struct LexState {
 #define char_is_setter(C)           (C == '=')
 #define char_is_separator(C)        (C == ',')
 #define char_is_colon(C)            (C == ':')
+#define char_is_deferred_arg(C)     (C == '_')
 
 #define char_is_syntax(C)           (                                         \
                                       char_is_separator(C) ||                 \

@@ -559,6 +559,27 @@ error:
   return "failed";
 }
 
+char *test_identifier_with_dot_method_call_and_deferred_arg() {
+  List *list = lex(" gerbil.talk(_,'bark') ");
+  mu_assert(list_length(list) == 8, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 4);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_DEFERRED_ARGUMENT, "lex did not build right token type for _, deferred arg");
+  mu_assert(object_value(token) == NULL, "lex did not build right value for _, deferred arg");
+
+  token = get_token_from_list(list, 5);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_COMMA, "lex did not build right token type for comma");
+  mu_assert(object_value(token) == NULL, "lex did not build right value for comma");
+
+  return NULL;
+error:
+  return "failed";
+}
+
 char *test_setting_local_variables() {
   List *list = lex(" foo = 'bar' ");
   mu_assert(list_length(list) == 3, "lex created wrong number of tokens");
@@ -690,6 +711,7 @@ char *all_tests() {
   mu_run_test(test_identifier_with_dot_method_call);
   mu_run_test(test_identifier_with_dot_method_call_and_argument);
   mu_run_test(test_identifier_with_dot_method_call_and_arguments);
+  mu_run_test(test_identifier_with_dot_method_call_and_deferred_arg);
 
   mu_run_test(test_setting_local_variables);
   mu_run_test(test_ids_can_start_with_setter);
