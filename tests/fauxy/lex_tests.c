@@ -462,6 +462,22 @@ error:
   return "failed";
 }
 
+char *test_ids_with_hyphens_and_underscores() {
+  List *list = lex(" 123-foo_bar ");
+
+  mu_assert(list_length(list) == 1, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(list, 0);
+  check(token, "token was not attached to node");
+
+  mu_assert(object_type(token) == FX_TOKEN_ID,  "lex did not build right token type for numeric starting identifier");
+  mu_assert(strcmp(token_string_value(token), "123-foo_bar") == 0, "lex did not build right value for numeric starting identifier");
+
+  return NULL;
+error:
+  return "failed";
+}
+
 char *test_identifier_with_dot_method_call() {
   List *list = lex(" file.open ");
   mu_assert(list_length(list) == 3, "lex created wrong number of tokens");
@@ -491,7 +507,6 @@ error:
 
 char *test_identifier_with_dot_method_call_and_arguments() {
   List *list = lex(" file.open('w') ");
-  printf("list_length %d\n", list_length(list));
   mu_assert(list_length(list) == 6, "lex created wrong number of tokens");
 
   Token *token = get_token_from_list(list, 3);
@@ -504,7 +519,7 @@ char *test_identifier_with_dot_method_call_and_arguments() {
   check(token, "token was not attached to node");
 
   mu_assert(object_type(token) == FX_TOKEN_STRING, "lex did not build right token type for string inside of parens");
-  mu_assert(strcmp(token_string_value(token), "w"), "lex did not build right value for string inside of parens");
+  mu_assert(strcmp(token_string_value(token), "w") == 0, "lex did not build right value for string inside of parens");
 
   token = get_token_from_list(list, 5);
   check(token, "token was not attached to node");
@@ -549,9 +564,10 @@ char *all_tests() {
   mu_run_test(test_number_starting_with_minus_sign);
   mu_run_test(test_exponential_numbers);
   mu_run_test(test_ids_starting_as_numbers);
+  mu_run_test(test_ids_with_hyphens_and_underscores);
 
   mu_run_test(test_identifier_with_dot_method_call);
-  // mu_run_test(test_identifier_with_dot_method_call_and_arguments);
+  mu_run_test(test_identifier_with_dot_method_call_and_arguments);
 
   return NULL;
 }
