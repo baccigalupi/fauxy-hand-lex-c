@@ -27,11 +27,12 @@ List *lex(char *str) {
   LexState *lex_state = LexState_create(code);
 
   Lexeme *lexeme = NULL;
+
   while( lex_state_in_progress(lex_state) ) {
     pfree(lexeme);
     lexeme = lex_get_next_lexeme(lex_state);
     if (lexeme) {
-      list_push_tokens_from_lexeme(list, lexeme);
+      list_push(list, token_from_lexeme(lexeme));
     }
   }
 
@@ -44,7 +45,7 @@ error:
   return NULL;
 }
 
-void list_push_tokens_from_lexeme(List *list, Lexeme *lexeme) {
+Token *token_from_lexeme(Lexeme *lexeme) {
   TokenType type;
   char *word = string_value(lexeme_word(lexeme));
   void *value = NULL;
@@ -108,11 +109,11 @@ void list_push_tokens_from_lexeme(List *list, Lexeme *lexeme) {
   token_line(token) =   lexeme_line(lexeme);
   token_column(token) = lexeme_column(lexeme);
 
-  list_push(list, token);
-
   pfree(lexeme_word(lexeme)); // because we created all new strings
+
+  return token;
 error:
-  return;
+  return NULL;
 }
 
 Lexeme *lex_get_next_lexeme(LexState *lex_state) {
@@ -125,15 +126,10 @@ Lexeme *lex_get_next_lexeme(LexState *lex_state) {
   Boolean should_continue = true;
 
   while ( lex_state_in_progress(lex_state) && should_continue ) {
-    // strings, comments ...
-    if ( string_length(word) == 0 && !lex_state_is_open(lex_state) && lex_state_is_opening(lex_state, c) ) {
+    // strings, comments, regex, etc ...
+    if ( string_empty(word) && lex_state_opens_at_current(lex_state) ) {
       starting_index = lex_state_current(lex_state);
       lex_state_expects_closing(lex_state) = lex_state_closer(lex_state, c);
-    }
-
-    // TODO: move down into the lookahead area??
-    if ( word_is_method_selected_by_char(word, c) ) {
-      break;
     }
 
     if ( lex_state_current_is_significant(lex_state, c) ) {
@@ -143,6 +139,7 @@ Lexeme *lex_get_next_lexeme(LexState *lex_state) {
       string_push(word, c);
     }
 
+    // update lex state for new line
     if ( char_is_line_end(c) ) {
       lex_state_start_new_line(lex_state);
     }
@@ -157,14 +154,14 @@ Lexeme *lex_get_next_lexeme(LexState *lex_state) {
         lex_state_close(lex_state);
         should_continue = false;
       }
-    } else if ( lex_state_current_is_significant(lex_state, c) ) {
-      if ( char_is_line_end(c) || char_is_statement_end(c) ||         // line ends usually significant of a statement end
-           lex_state_end_of_word(lex_state) ||                        // end of normal word sequence
-           word_is_method_selector(word, c)  ||                       // '.'
-           char_is_syntax(c) ||                                       // '(' ')' ','
-           char_is_colon(lex_state_next_char(lex_state)) ) {          // : appearing after first char breaks the word
-        should_continue = false;
-      }
+    } else if ( lex_state_current_is_significant(lex_state, c) && (
+        char_is_line_end(c) || char_is_statement_end(c) ||         // line ends usually significant of a statement end
+        lex_state_end_of_word(lex_state) ||                        // end of normal word sequence
+        word_is_method_selector(word, c)  ||                       // '.'
+        char_is_syntax(c) ||                                       // '(' ')' ','
+        char_is_colon(lex_state_next_char(lex_state)) ||           // : appearing after first char breaks the word
+        lex_state_will_end_word_by_dot(lex_state, word))       ) { // next char is a dot, and word is not a number
+      should_continue = false;
     }
 
     // move to next character
@@ -172,7 +169,7 @@ Lexeme *lex_get_next_lexeme(LexState *lex_state) {
     c = lex_state_current_char(lex_state);
   }
 
-  if (string_length(word) == 0) {
+  if ( string_empty(word) ) {
     pfree(word);
     return NULL;
   }

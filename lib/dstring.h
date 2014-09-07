@@ -17,6 +17,7 @@ typedef struct String {
 #define string_count(S)         ((S)->length)
 #define string_length(S)        ((S)->length)
 #define string_compare(S, T)    (strcmp(string_value(S), string_value(T)))
+#define string_empty(S)         (string_length(S) == 0)
 
 String *String_create(const char *value);
 int     string_set(String *string, const char *value);

@@ -58,6 +58,8 @@ typedef struct LexState {
 #define lex_state_expects_closing(L)  ((L)->expects_closing)
 #define lex_state_is_open(L)          ((L)->expects_closing)
 
+#define lex_state_opens_at_current(L) (!lex_state_is_open(L) && lex_state_is_opening(L, lex_state_current_char(L)))
+
 #define lex_state_will_close(L, C)    (                                                                           \
                                         (L)->expects_closing &&                                                   \
                                         (                                                                         \
@@ -117,10 +119,10 @@ typedef struct LexState {
 
 #define lex_state_in_progress(L)                (lex_state_current(lex_state) < lex_state_length(lex_state))
 
-#define word_is_method_selected_by_char(S, C)   (                                                     \
-                                                    char_is_method_selector(C) &&                     \
-                                                    string_length(S) > 0 &&                           \
-                                                    !lexed_word_is_number(string_value(S))            \
+#define lex_state_will_end_word_by_dot(L, S)    (                                                       \
+                                                  char_is_method_selector(lex_state_next_char(L)) &&    \
+                                                  string_length(S) > 0 &&                               \
+                                                  !lexed_word_is_number(string_value(S))                \
                                                 )
 
 #define word_is_method_selector(S, C)           (                                                     \
@@ -145,7 +147,7 @@ List      *lex(char *code);
 
 LexState  *LexState_create(String *code);
 Lexeme    *lex_get_next_lexeme(LexState *lex_state);
-void       list_push_tokens_from_lexeme(List *list, Lexeme *lexeme);
+Token     *token_from_lexeme(Lexeme *lexeme);
 Boolean    lexed_word_is_number(char *word);
 
 Lexeme    *Lexeme_create(String *word, int line, int column);
