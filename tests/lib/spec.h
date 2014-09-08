@@ -28,7 +28,7 @@
 #define print_status(S, COLOR)    (printf("  %s%s %s\n", COLOR, S, CONSOLE_RESET))
 #define print_success(S)          print_status(S, CONSOLE_GREEN)
 #define print_failure(S)          print_status(S, CONSOLE_RED)
-#define print_location()          (printf("file: '%s' line '%d'\n", __FILE__, __LINE__))
+#define print_location()          (printf("    file: '%s' line '%d'\n", __FILE__, __LINE__))
 
 #define print_int_expectation(A, B)     (printf("Expected %d to be %d\n", A, B))
 #define print_float_expectation(A, B)   (printf("Expected %f to be %f\n", A, B))

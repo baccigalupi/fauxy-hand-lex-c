@@ -26,10 +26,9 @@ List *lex(char *str) {
   String   *code =      String_create(str);
   LexState *lex_state = LexState_create(code);
 
-  Lexeme *lexeme = NULL;
+  Token *lexeme = NULL;
 
   while( lex_state_in_progress(lex_state) ) {
-    pfree(lexeme);
     lexeme = lex_get_next_lexeme(lex_state);
     if (lexeme) {
       list_push(list, token_from_lexeme(lexeme));
@@ -38,85 +37,86 @@ List *lex(char *str) {
 
   pfree(code);
   pfree(lex_state);
-  // free some shit!
 
   return list;
 error:
   return NULL;
 }
 
-Token *token_from_lexeme(Lexeme *lexeme) {
-  TokenType type;
-  char *word = string_value(lexeme_word(lexeme));
+Token *token_from_lexeme(Token *lexeme) {
+  char *word = string_value(lexeme_value(lexeme));
   void *value = NULL;
   char first_char = word[0];
 
   if ( char_is_line_end(first_char) ) {
-    type = FX_TOKEN_LINE_END;
+    object_type(lexeme) = FX_TOKEN_LINE_END;
+    pfree(object_value(lexeme));
   } else if ( char_is_statement_end(first_char) ) {
-    type = FX_TOKEN_STATEMENT_END;
+    object_type(lexeme) = FX_TOKEN_STATEMENT_END;
+    pfree(object_value(lexeme));
   } else if ( char_is_method_selector(first_char) ) {
-    type = FX_TOKEN_ATTRIBUTE_SELECTOR;
+    object_type(lexeme) = FX_TOKEN_ATTRIBUTE_SELECTOR;
+    pfree(object_value(lexeme));
   } else if ( char_opens_group(first_char) ) {
-    type = FX_TOKEN_GROUP_START;
+    object_type(lexeme) = FX_TOKEN_GROUP_START;
+    pfree(object_value(lexeme));
   } else if ( char_closes_group(first_char) ) {
-    type = FX_TOKEN_GROUP_END;
+    object_type(lexeme) = FX_TOKEN_GROUP_END;
+    pfree(object_value(lexeme));
   } else if ( char_is_separator(first_char) ) {
-    type = FX_TOKEN_COMMA;
+    object_type(lexeme) = FX_TOKEN_COMMA;
+    pfree(object_value(lexeme));
   } else if ( char_opens_block(first_char) ) {
-    type = FX_TOKEN_BLOCK_START;
+    object_type(lexeme) = FX_TOKEN_BLOCK_START;
+    pfree(object_value(lexeme));
   } else if ( char_closes_block(first_char) ) {
-    type = FX_TOKEN_BLOCK_END;
-  } else if ( char_is_setter(first_char) && string_length(lexeme_word(lexeme)) == 1 ) {
-    type = FX_TOKEN_LOCAL_SETTER;
-  } else if ( char_is_colon(first_char) && string_length(lexeme_word(lexeme)) == 1 ) {
-    type = FX_TOKEN_ATTRIBUTE_SETTER;
-  } else if ( char_is_deferred_arg(first_char) && string_length(lexeme_word(lexeme)) == 1 ) {
-    type = FX_TOKEN_DEFERRED_ARGUMENT;
+    object_type(lexeme) = FX_TOKEN_BLOCK_END;
+    pfree(object_value(lexeme));
+  } else if ( char_is_setter(first_char) && lexeme_length(lexeme) == 1 ) {
+    object_type(lexeme) = FX_TOKEN_LOCAL_SETTER;
+    pfree(object_value(lexeme));
+  } else if ( char_is_colon(first_char) && lexeme_length(lexeme) == 1 ) {
+    object_type(lexeme) = FX_TOKEN_ATTRIBUTE_SETTER;
+    pfree(object_value(lexeme));
+  } else if ( char_is_deferred_arg(first_char) && lexeme_length(lexeme) == 1 ) {
+    object_type(lexeme) = FX_TOKEN_DEFERRED_ARGUMENT;
+    pfree(object_value(lexeme));
   } else if ( word_is_block_declaration(word) ) {
-    type = FX_TOKEN_BLOCK_DECLARATION;
+    object_type(lexeme) = FX_TOKEN_BLOCK_DECLARATION;
+    pfree(object_value(lexeme));
   } else if ( char_is_regex_bookend(first_char) ) {
-    type = FX_TOKEN_REGEX;
-    value = String_create(word);
-    check(value, "token string value is NULL");
+    object_type(lexeme) = FX_TOKEN_REGEX;
   } else if ( char_is_string_bookend(first_char) ) {
-    type = FX_TOKEN_STRING;
-    word[string_length(lexeme_word(lexeme)) - 1] = '\0'; // shortening string contents to remove the quotation marks
+    object_type(lexeme) = FX_TOKEN_STRING;
+    word[lexeme_length(lexeme) - 1] = '\0'; // shortening string contents to remove the quotation marks
     value = String_create((word+1));
     check(value, "token string value is NULL");
+    pfree(object_value(lexeme));
+    object_value(lexeme) = value;
   } else if ( lexed_word_is_number(word) ) {
-    type = FX_TOKEN_NUMBER;
+    object_type(lexeme) = FX_TOKEN_NUMBER;
     value = Number_create(word);
     check(value, "token number is NULL");
+    pfree(object_value(lexeme));
+    object_value(lexeme) = value;
   } else if ( char_is_capitalized(first_char) ) {
-    type = FX_TOKEN_GLOBAL_ID;
-    value = String_create(word);
-    check(value, "token string value is NULL");
+    object_type(lexeme) = FX_TOKEN_GLOBAL_ID;
   } else if ( char_is_colon(first_char) ) {
-    type = FX_TOKEN_ATOM;
+    object_type(lexeme) = FX_TOKEN_ATOM;
     value = String_create((word+1));
     check(value, "token string value is NULL");
+    pfree(object_value(lexeme));
+    object_value(lexeme) = value;
   } else {
-    type = FX_TOKEN_ID;
-    value = String_create(word);
-    check(value, "token string value is NULL");
+    object_type(lexeme) = FX_TOKEN_ID;
   }
 
-  Token  *token =  Token_create(type);
-  check(token, "token token is NULL");
-
-  object_value(token) = value;
-  token_line(token) =   lexeme_line(lexeme);
-  token_column(token) = lexeme_column(lexeme);
-
-  pfree(lexeme_word(lexeme)); // because we created all new strings
-
-  return token;
+  return lexeme;
 error:
   return NULL;
 }
 
-Lexeme *lex_get_next_lexeme(LexState *lex_state) {
+Token *lex_get_next_lexeme(LexState *lex_state) {
   String *word = String_create("");
 
   int starting_index = 0; // used to track progress against comments
@@ -174,9 +174,12 @@ Lexeme *lex_get_next_lexeme(LexState *lex_state) {
     return NULL;
   }
 
-  Lexeme *lexeme = Lexeme_create(word, line, column);
+  Token *lexeme = Token_create(word, line, column);
+  check_mem(lexeme);
 
   return lexeme;
+error:
+  return NULL;
 }
 
 Boolean lexed_word_is_number(char *word) {
@@ -219,17 +222,4 @@ Boolean lexed_word_is_number(char *word) {
   }
 
   return is_valid;
-}
-
-Lexeme *Lexeme_create(String *word, int line, int column) {
-  Lexeme *lexeme = calloc(1, sizeof(Lexeme));
-  check_mem(lexeme);
-
-  lexeme_word(lexeme) = word;
-  lexeme_line(lexeme) = line;
-  lexeme_column(lexeme) = column;
-
-  return lexeme;
-error:
-  return NULL;
 }

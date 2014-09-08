@@ -125,31 +125,32 @@ typedef struct LexState {
                                                   !lexed_word_is_number(string_value(S))                \
                                                 )
 
-#define word_is_method_selector(S, C)           (                                                     \
-                                                    char_is_method_selector(C) &&                     \
-                                                    string_length(S) == 1                             \
+#define word_is_method_selector(S, C)           (                                                   \
+                                                  char_is_method_selector(C) &&                     \
+                                                  string_length(S) == 1                             \
                                                 )
 
 #define word_is_block_declaration(W)            (strcmp(W, "->") == 0)
 
-typedef struct Lexeme {
-  String *word;
-  int line;
-  int column;
-} Lexeme;
-
-#define lexeme_word(L)             ((L)->word)
-#define lexeme_line(L)             ((L)->line)
-#define lexeme_column(L)           ((L)->column)
+#define lexeme_value(L)        ((String *)object_value(L))
+#define lexeme_length(L)       (string_length(lexeme_value(L)))
 
 
 List      *lex(char *code);
 
 LexState  *LexState_create(String *code);
-Lexeme    *lex_get_next_lexeme(LexState *lex_state);
-Token     *token_from_lexeme(Lexeme *lexeme);
+Token     *lex_get_next_lexeme(LexState *lex_state);
+Token     *token_from_lexeme(Token *lexeme);
 Boolean    lexed_word_is_number(char *word);
 
-Lexeme    *Lexeme_create(String *word, int line, int column);
+void static inline token_list_destroy(List *list) {
+  Node *node;
+  Token *token;
+  list_each(list, node) {
+    token = node_value(node);
+    pfree( object_value(token) );
+  }
+  list_clear_and_destroy(list);
+}
 
 #endif

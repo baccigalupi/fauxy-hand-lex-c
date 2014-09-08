@@ -34,7 +34,7 @@ typedef enum {
   FX_TOKEN_DEFERRED_ARGUMENT,   // "_"
 
   FX_TOKEN_BLOCK_DECLARATION,   // "->"
-  
+
   FX_TOKEN_GLOBAL_ID,           // starts with uppercase
   FX_TOKEN_ID,                  // method calls and variable names
   FX_TOKEN_ATOM                 // starts with :
@@ -76,16 +76,10 @@ typedef struct Token {
 #define token_line(T)           ((T)->line)
 #define token_column(T)         ((T)->column)
 
-Token *Token_create(TokenType type);
+Token *Token_create(String *value, int line, int column);
 
-#define token_destroy(T)        pfree(T)
 #define token_number_value(T)   (number_value((Number *)((T)->value)))
 #define token_number_type(T)    (object_type((Number *)object_value(token)))
 #define token_string_value(T)   (string_value((String *)((T)->value)))
-
-void inline static token_clear_and_destroy(Token *token) {
-  free( object_value(token) );
-  pfree(token);
-}
 
 #endif
