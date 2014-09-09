@@ -4,7 +4,7 @@
 #include "../../lib/fauxy/token.h"
 #include "../../lib/bricks/list.h"
 #include "../../lib/bricks/node.h"
-#include "../../lib/number.h"
+#include "../../lib/bricks/number.h"
 #include "../../lib/bricks/bricks.h"
 
 #include "../lib/spec.h"

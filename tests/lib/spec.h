@@ -30,9 +30,9 @@
 #define print_failure(S)          print_status(S, CONSOLE_RED)
 #define print_location()          (printf("    file: '%s' line '%d'\n", __FILE__, __LINE__))
 
-#define print_int_expectation(A, B)     (printf("Expected %d to be %d\n", A, B))
-#define print_float_expectation(A, B)   (printf("Expected %f to be %f\n", A, B))
-#define print_string_expectation(A, B)  (printf("Expected %s to be %s\n", A, B))
+#define print_int_expectation(A, B)     (printf("    Expected %d to be %d\n", A, B))
+#define print_float_expectation(A, B)   (printf("    Expected %f to be %f\n", A, B))
+#define print_string_expectation(A, B)  (printf("    Expected %s to be %s\n", A, B))
 
 
 #define assert_equal(A, B, S)     (                                                                 \
@@ -41,8 +41,8 @@
                                     ((++assertions_failed), (print_failure(S)), (print_location())) \
                                   )
 
-#define assert_ints_equal(A, B, S)    assert_equal(A, B, S); ((A) == (B)) ? NULL : print_int_expectation(A, B)
-#define assert_floats_equal(A, B, S)  assert_equal(A, B, S); ((A) == (B)) ? NULL : print_float_expectation(A, B)
+#define assert_ints_equal(A, B, S)    assert_equal(A, B, S); ((A) == (B)) ? 0 : print_int_expectation(A, B)
+#define assert_floats_equal(A, B, S)  assert_equal(A, B, S); ((A) == (B)) ? 0 : print_float_expectation(A, B)
 
 #define assert_strings_equal(A, B, S) (                                                                                                     \
                                         (strcmp(A, B)) == 0 ?                                                                               \

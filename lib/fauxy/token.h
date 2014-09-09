@@ -3,7 +3,7 @@
 
 #include "../bricks/bricks.h"
 #include "../dstring.h"
-#include "../number.h"
+#include "../bricks/number.h"
 
 /*
   Token is the node for lexing into a list,
