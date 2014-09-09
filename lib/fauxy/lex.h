@@ -54,7 +54,7 @@ typedef struct LexState {
                                       )
 
 #define lex_state_next_char(L)        (( lex_state_length(L) > lex_state_current(L) ) ? (((L)->code)->value[lex_state_current(L) + 1]) : '\0')
-#define lex_state_advance(L)          ((++ lex_state_current(lex_state)) && (++ lex_state_column(L)))
+#define lex_state_advance(L)          ((++ lex_state_current(lex_state)), (++ lex_state_column(L)))
 #define lex_state_expects_closing(L)  ((L)->expects_closing)
 #define lex_state_is_open(L)          ((L)->expects_closing)
 
@@ -79,7 +79,7 @@ typedef struct LexState {
                                                     ((L)->expects_closing = FX_CLOSING_NULL)                              \
                                                 )
 
-#define lex_state_start_new_line(L)             ((++ lex_state_line(lex_state)) && (lex_state_column(lex_state) = 0))
+#define lex_state_start_new_line(L)             ((++ lex_state_line(lex_state)), (lex_state_column(lex_state) = 0))
 #define lex_state_opening_block_comment(L, C)   (C == '/' && lex_state_next_char(L) == '*')
 #define lex_state_opening_line_comment(L, C)    (C == '/' && lex_state_next_char(L) == '/')
 

@@ -35,19 +35,19 @@
 #define print_string_expectation(A, B)  (printf("Expected %s to be %s\n", A, B))
 
 
-#define assert_equal(A, B, S)     (                                                             \
-                                    ((A) == (B)) ?                                              \
-                                    ++assertions_passed && print_success(S) :                   \
-                                    ++assertions_failed && print_failure(S) && print_location() \
+#define assert_equal(A, B, S)     (                                                                 \
+                                    ((A) == (B)) ?                                                  \
+                                    ((++assertions_passed) && (print_success(S))) :                 \
+                                    ((++assertions_failed), (print_failure(S)), (print_location())) \
                                   )
 
 #define assert_ints_equal(A, B, S)    assert_equal(A, B, S); ((A) == (B)) ? NULL : print_int_expectation(A, B)
 #define assert_floats_equal(A, B, S)  assert_equal(A, B, S); ((A) == (B)) ? NULL : print_float_expectation(A, B)
 
-#define assert_strings_equal(A, B, S) (                                                                                                 \
-                                        (strcmp(A, B)) == 0 ?                                                                           \
-                                        ++assertions_passed && print_success(S) :                                                       \
-                                        ++assertions_failed && print_failure(S) && print_location() && print_string_expectation(A, B)   \
+#define assert_strings_equal(A, B, S) (                                                                                                     \
+                                        (strcmp(A, B)) == 0 ?                                                                               \
+                                        ((++assertions_passed), (print_success(S))) :                                                       \
+                                        ((++assertions_failed), (print_failure(S)), (print_location()), (print_string_expectation(A, B)))   \
                                       )
 
 #define run_spec(S)                S(); specs_run++;
