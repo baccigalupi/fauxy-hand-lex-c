@@ -1,6 +1,6 @@
 #include <assert.h>
 
-#include "../lib/list.h"
+#include "../lib/bricks/list.h"
 #include "lib/mu_assert.h"
 
 char *test_create_list() {

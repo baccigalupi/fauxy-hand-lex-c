@@ -3,9 +3,9 @@
 
 #include "lex.h"
 #include "token.h"
-#include "../error_handling.h"
+#include "../bricks/error_handling.h"
 #include "../dstring.h"
-#include "../list.h"
+#include "../bricks/list.h"
 
 LexState *LexState_create(String *code) {
   LexState *lex_state = calloc(1, sizeof(LexState));

@@ -1,7 +1,7 @@
 #ifndef __fauxy_token
 #define __fauxy_token
 
-#include "../helpers.h"
+#include "../bricks/bricks.h"
 #include "../dstring.h"
 #include "../number.h"
 

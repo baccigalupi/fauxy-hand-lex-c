@@ -3,7 +3,7 @@
 #include "../lib/number.h"
 
 #include "lib/mu_assert.h"
-#include "../lib/helpers.h"
+#include "../lib/bricks/bricks.h"
 
 char *test_number_create_as_float() {
   Number *number = Number_create("1.45");

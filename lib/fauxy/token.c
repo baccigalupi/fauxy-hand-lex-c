@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../error_handling.h"
+#include "../bricks/error_handling.h"
 
 #include "token.h"
 

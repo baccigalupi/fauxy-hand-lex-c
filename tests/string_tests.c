@@ -1,7 +1,7 @@
 #include <assert.h>
 
 #include "../lib/dstring.h"
-#include "../lib/helpers.h"
+#include "../lib/bricks/bricks.h"
 
 #include "lib/mu_assert.h"
 

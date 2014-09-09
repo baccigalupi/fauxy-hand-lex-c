@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../../lib/error_handling.h"
+#include "../../lib/bricks/error_handling.h"
 
 #define mu_suite_start() char *message = NULL
 

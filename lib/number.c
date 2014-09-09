@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "error_handling.h"
-#include "helpers.h"
+#include "bricks/error_handling.h"
+#include "bricks/bricks.h"
 
 #include "number.h"
 

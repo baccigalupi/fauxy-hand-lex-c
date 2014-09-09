@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../../lib/error_handling.h"
+#include "../../lib/bricks/error_handling.h"
 
 #define CONSOLE_RED      "\e[31m"
 #define CONSOLE_GREEN    "\e[38;5;40m"

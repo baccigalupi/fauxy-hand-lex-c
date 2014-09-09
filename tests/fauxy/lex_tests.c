@@ -2,10 +2,10 @@
 
 #include "../../lib/fauxy/lex.h"
 #include "../../lib/fauxy/token.h"
-#include "../../lib/list.h"
-#include "../../lib/node.h"
+#include "../../lib/bricks/list.h"
+#include "../../lib/bricks/node.h"
 #include "../../lib/number.h"
-#include "../../lib/helpers.h"
+#include "../../lib/bricks/bricks.h"
 
 #include "../lib/spec.h"
 

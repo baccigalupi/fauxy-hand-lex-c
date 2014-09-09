@@ -1,7 +1,7 @@
 #include <stdlib.h>
 
 #include "error_handling.h"
-#include "helpers.h"
+#include "bricks.h"
 
 #include "list.h"
 

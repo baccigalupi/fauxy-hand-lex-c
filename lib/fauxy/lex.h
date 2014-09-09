@@ -3,7 +3,7 @@
 
 #include <ctype.h>
 
-#include "../list.h"
+#include "../bricks/list.h"
 #include "../dstring.h"
 #include "token.h"
 
