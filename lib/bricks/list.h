@@ -1,5 +1,5 @@
-#ifndef __data_structures_list_h
-#define __data_structures_list_h
+#ifndef __bricks_list_h
+#define __bricks_list_h
 
 #include "node.h"
 

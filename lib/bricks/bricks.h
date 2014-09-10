@@ -3,6 +3,11 @@
 
 #include <stdlib.h>
 
+#define CONSOLE_RED      "\e[31m"
+#define CONSOLE_GREEN    "\e[38;5;40m"
+#define CONSOLE_ORANGE   "\e[40;38;5;214m"
+#define CONSOLE_RESET    "\e[0m"
+
 typedef enum {
   false,
   true
@@ -10,7 +15,7 @@ typedef enum {
 
 // MEMORY -----------
 // frees a pointer and sets it to null
-#define pfree(P)        if ((P) != NULL) { free(P); (P) = NULL; }
+#define pfree(P)        ((P) != NULL) ? (free(P), ((P) = NULL)) : (NULL)
 // convenience for clearing the pointer to null after destroyed, second argument is the destroy function
 #define pdestroy(P, F)  pfree(P)
 

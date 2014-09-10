@@ -1,5 +1,5 @@
-#ifndef __data_structures_number
-#define __data_structures_number
+#ifndef __bricks_number
+#define __bricks_number
 
 
 // TODO: change to max int size for machine and max float size
@@ -26,7 +26,7 @@ typedef struct {
 } Number;
 
 Number *Number_create(const char *str);
-void   number_destroy(Number *number);
-void   number_convert(Number *number, int type);
+void    number_destroy(Number *number);
+void    number_convert(Number *number, int type);
 
 #endif

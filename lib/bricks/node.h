@@ -1,5 +1,5 @@
-#ifndef __data_structures_node_h
-#define __data_structures_node_h
+#ifndef __bricks_node_h
+#define __bricks_node_h
 
 typedef struct Node {
   void *value;

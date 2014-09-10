@@ -1,9 +1,6 @@
-#include <assert.h>
-
 #include "../../lib/bricks/number.h"
 #include "../../lib/bricks/bricks.h"
 
-#include "../lib/mu_assert.h"
 #include "../lib/spec.h"
 
 

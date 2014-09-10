@@ -4,14 +4,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
+#include "../../lib/bricks/bricks.h"
 #include "../../lib/bricks/error_handling.h"
-
-#define CONSOLE_RED      "\e[31m"
-#define CONSOLE_GREEN    "\e[38;5;40m"
-#define CONSOLE_ORANGE   "\e[40;38;5;214m"
-#define CONSOLE_RESET    "\e[0m"
-
 
 #define spec_describe(S)          printf("\n%s %s %s\n", CONSOLE_ORANGE, S, CONSOLE_RESET)
 
@@ -32,7 +28,7 @@
 
 #define print_int_expectation(A, B)     (printf("    Expected %d to be %d\n", A, B))
 #define print_float_expectation(A, B)   (printf("    Expected %f to be %f\n", A, B))
-#define print_string_expectation(A, B)  (printf("    Expected %s to be %s\n", A, B))
+#define print_string_expectation(A, B)  (printf("    Expected '%s' to be '%s'\n", A, B))
 
 
 #define assert_equal(A, B, S)     (                                                                 \
