@@ -4,7 +4,7 @@
 #include <ctype.h>
 
 #include "../bricks/list.h"
-#include "../dstring.h"
+#include "../bricks/string.h"
 #include "token.h"
 
 typedef struct LexState {

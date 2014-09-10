@@ -2,7 +2,7 @@
 #define __fauxy_token
 
 #include "../bricks/bricks.h"
-#include "../dstring.h"
+#include "../bricks/string.h"
 #include "../bricks/number.h"
 
 /*

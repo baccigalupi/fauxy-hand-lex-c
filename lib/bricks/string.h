@@ -22,15 +22,16 @@ typedef struct String {
 #define string_length(S)      ((S)->length)
 #define string_limit(S)       ((S)->limit)
 #define string_value(S)       ((S)->value)
-#define string_free(S)        ((pfree(string_value(S))), (pfree(S)))
+#define string_free(S)        ((pfree(string_value((String *)S))), (pfree(S)))
 #define string_char_at(S, I)  ((string_length(S) > I) ? (string_value(S)[I]) : '\0')
+#define string_empty(S)       (string_length(S) == 0)
 
-String *B_String_create(CHAR *value);
-void    string_push_char(String *string, CHAR c);
-void    string_cat(String *string, CHAR *str);
-Boolean b_string_expand(String *string, int length);
+String *String_create(CHAR *value);
+void    string_push(String *string, CHAR c);
+void    string_concat(String *string, CHAR *str);
+Boolean string_expand(String *string, int length);
 
-static inline int B_String_limit(int len) {
+static inline int String_limit(int len) {
   int exponent = 1;
   while ( len > 1 ) {
     exponent ++;

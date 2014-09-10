@@ -4,7 +4,7 @@
 
 char *test_create_from_literal() {
   spec_describe("Create from string literal");
-  String *string = B_String_create("0123456789");
+  String *string = String_create("0123456789");
 
   assert_ints_equal(string_length(string), 10, "length");
   assert_ints_equal(string_limit(string), 32, "limit");
@@ -20,7 +20,7 @@ char *test_create_from_allocated() {
   CHAR *str = calloc(4, sizeof(CHAR));
   STRCPY(str, "foo");
 
-  String *string = B_String_create(str);
+  String *string = String_create(str);
 
   pfree(str);
 
@@ -36,7 +36,7 @@ char *test_create_from_allocated() {
 char *test_accessing_by_index() {
   spec_describe("Accessing string characters by index");
 
-  String *string = B_String_create("0123456789");
+  String *string = String_create("0123456789");
 
   assert_equal(string_char_at(string, 0), '0', "0 index");
   assert_equal(string_char_at(string, 1), '1', "1 index");
@@ -52,32 +52,32 @@ char *test_accessing_by_index() {
 char *test_push_character() {
   spec_describe("Pushing individual characters to a string");
 
-  String *string = B_String_create("foo");
+  String *string = String_create("foo");
 
   assert_ints_equal(string_limit(string), 8, "limit");
 
-  string_push_char(string, '.');
+  string_push(string, '.');
   assert_equal(string_length(string), 4, "first push: string length");
   assert_strings_equal(string_value(string), "foo.", "string value");
 
-  string_push_char(string, 'b');
+  string_push(string, 'b');
   assert_equal(string_length(string), 5, "second push: string length");
   assert_strings_equal(string_value(string), "foo.b", "string value");
 
-  string_push_char(string, 'a');
+  string_push(string, 'a');
   assert_equal(string_length(string), 6, "third push: string length");
   assert_strings_equal(string_value(string), "foo.ba", "string value");
 
-  string_push_char(string, 'r');
+  string_push(string, 'r');
   assert_equal(string_length(string), 7, "fourth push: string length");
   assert_strings_equal(string_value(string), "foo.bar", "string value");
 
-  string_push_char(string, '(');
+  string_push(string, '(');
   assert_equal(string_length(string), 8, "fifth push: string length");
   assert_strings_equal(string_value(string), "foo.bar(", "string value");
   assert_ints_equal(string_limit(string), 8, "limit");
 
-  string_push_char(string, ')');
+  string_push(string, ')');
   assert_equal(string_length(string), 9, "fifth push: string length");
   assert_strings_equal(string_value(string), "foo.bar()", "string value");
   assert_ints_equal(string_limit(string), 32, "limit");
@@ -90,11 +90,11 @@ char *test_push_character() {
 char *test_concat() {
   spec_describe("Pushing individual characters to a string");
 
-  String *string = B_String_create("foo");
+  String *string = String_create("foo");
 
   assert_ints_equal(string_limit(string), 8, "limit");
 
-  string_cat(string, ".bar()");
+  string_concat(string, ".bar()");
 
   assert_equal(string_length(string), 9, "fifth push: string length");
   assert_strings_equal(string_value(string), "foo.bar()", "string value");
