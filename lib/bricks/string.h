@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 #include "bricks.h"
 
@@ -30,14 +29,5 @@ String *String_create(CHAR *value);
 void    string_push(String *string, CHAR c);
 void    string_concat(String *string, CHAR *str);
 Boolean string_expand(String *string, int length);
-
-static inline int String_limit(int len) {
-  int exponent = 1;
-  while ( len > 1 ) {
-    exponent ++;
-    len = len >> 1;
-  }
-  return pow(2, exponent+1);
-}
 
 #endif

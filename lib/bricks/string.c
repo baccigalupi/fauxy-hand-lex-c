@@ -8,7 +8,7 @@ String *String_create(CHAR *str) {
   check_mem(string);
 
   int length = STRLEN(str);
-  int limit = String_limit(length);
+  int limit = Expandable_limit(length);
   CHAR *value = calloc(limit + 1, sizeof(CHAR));
   check_mem(value);
 
@@ -26,7 +26,7 @@ error:
 
 void string_push(String *string, CHAR c) {
   if ( !(string_length(string) < string_limit(string)) ) {
-    int limit = String_limit(string_length(string));
+    int limit = Expandable_limit(string_length(string));
     Boolean success = string_expand(string, limit);
     check(success, "Unable to allocate memory to expand string");
   }
@@ -53,7 +53,7 @@ void string_concat(String *string, CHAR *str) {
   int needed_length = STRLEN(str) + string_length(string);
 
   if ( !(needed_length < string_limit(string)) ) {
-    int limit = String_limit(needed_length);
+    int limit = Expandable_limit(needed_length);
     Boolean success = string_expand(string, limit);
     check(success, "Unable to allocate memory to expand string");
   }

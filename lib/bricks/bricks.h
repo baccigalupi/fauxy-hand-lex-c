@@ -2,6 +2,7 @@
 #define __helpers__
 
 #include <stdlib.h>
+#include <math.h>
 
 #define CONSOLE_RED      "\e[31m"
 #define CONSOLE_GREEN    "\e[38;5;40m"
@@ -23,5 +24,15 @@ typedef enum {
 // VARIANT ACCESSORS -------------
 #define object_type(O)       ((O)->type)
 #define object_value(O)      ((O)->value)
+
+// EXPANDABLE OBJECT METHODS
+static inline int Expandable_limit(int len) {
+  int exponent = 1;
+  while ( len > 1 ) {
+    exponent ++;
+    len = len >> 1;
+  }
+  return pow(2, exponent+1);
+}
 
 #endif
