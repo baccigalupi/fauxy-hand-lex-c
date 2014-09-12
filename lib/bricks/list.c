@@ -1,8 +1,3 @@
-#include <stdlib.h>
-
-#include "error_handling.h"
-#include "bricks.h"
-
 #include "list.h"
 
 List *List_create() {

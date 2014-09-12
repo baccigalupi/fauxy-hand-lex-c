@@ -1,10 +1,4 @@
-#include <stdlib.h>
-#include <string.h>
-
-#include "../bricks/error_handling.h"
-
 #include "token.h"
-
 
 Token *Token_create(String *value, int line, int column) {
   Token *token = calloc(1, sizeof(Token));

@@ -1,5 +1,5 @@
-#ifndef __helpers__
-#define __helpers__
+#ifndef __bricks
+#define __bricks
 
 #include <stdlib.h>
 #include <math.h>

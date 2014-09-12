@@ -1,6 +1,11 @@
 #ifndef __bricks_number
 #define __bricks_number
 
+#include <stdlib.h>
+#include <string.h>
+
+#include "error_handling.h"
+#include "bricks.h"
 
 // TODO: change to max int size for machine and max float size
 #define INT     int

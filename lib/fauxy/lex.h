@@ -2,9 +2,12 @@
 #define __fauxy_lex_h
 
 #include <ctype.h>
+#include <string.h>
 
+#include "../bricks/error_handling.h"
 #include "../bricks/list.h"
 #include "../bricks/string.h"
+
 #include "token.h"
 
 typedef struct LexState {

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "error_handling.h"
 #include "bricks.h"
 
 #define CHAR      char
