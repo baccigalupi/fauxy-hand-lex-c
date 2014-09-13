@@ -1,11 +1,6 @@
 #ifndef __bricks_list_h
 #define __bricks_list_h
 
-#include <stdlib.h>
-
-#include "error_handling.h"
-#include "bricks.h"
-
 #include "node.h"
 
 typedef struct List {

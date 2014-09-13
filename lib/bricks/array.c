@@ -1,4 +1,10 @@
+#include <stdlib.h>
+
+#include "error_handling.h"
+#include "bricks.h"
+
 #include "array.h"
+
 
 Array *Array_create() {
   Array *array = calloc(1, sizeof(Array));

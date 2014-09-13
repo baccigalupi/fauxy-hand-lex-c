@@ -1,3 +1,8 @@
+#include <stdlib.h>
+
+#include "error_handling.h"
+#include "bricks.h"
+
 #include "./string.h"
 
 String *String_create(CHAR *str) {

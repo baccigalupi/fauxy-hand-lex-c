@@ -6,6 +6,7 @@
 
 #include "../bricks/error_handling.h"
 #include "../bricks/list.h"
+#include "../bricks/node.h"
 #include "../bricks/string.h"
 
 #include "token.h"

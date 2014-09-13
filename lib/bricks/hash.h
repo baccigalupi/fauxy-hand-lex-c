@@ -1,14 +1,10 @@
-#ifndef __bricks_array
-#define __bricks_array
+#ifndef __bricks_hash
+#define __bricks_hash
 
 #include <stdlib.h>
 
-#include "bricks.h"
-#include "error_handling.h"
-
 #include "./string.h"
-#include "array.h"
-
+#include "./array.h"
 
 typedef struct Hash {
   int length;

@@ -1,10 +1,7 @@
 #ifndef __bricks_string
 #define __bricks_string
 
-#include <stdlib.h>
 #include <string.h>
-
-#include "error_handling.h"
 #include "bricks.h"
 
 #define CHAR      char

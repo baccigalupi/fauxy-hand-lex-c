@@ -1,10 +1,7 @@
 #ifndef __bricks_array
 #define __bricks_array
 
-#include <stdlib.h>
-
-#include "bricks.h"
-#include "error_handling.h"
+#include "bricks.h" // for Boolean
 
 #define DEFAULT_ARRAY_LIMIT 32
 
@@ -23,7 +20,8 @@ typedef void (ArrayIterator)(void *);
 #define array_at_index(A, I) (array_values(A)[I])
 #define array_get(A, I)      array_at_index(A, I)
 #define array_free(A)        (pfree(A))
-#define array_r_free(A)      ((array_each(A, free)), array_free(A))
+#define array_free_each(A)   (array_each(A, free)) // macro cannot handle pfree :(
+#define array_r_free(A)      (array_free_each(A), array_free(A))
 
 Array     *Array_create();
 void      array_push(Array *array, void *element);

@@ -1,5 +1,10 @@
+#include "bricks.h"
+#include "error_handling.h"
+
 #include "hash.h"
 #include "array.h"
+
+
 
 /**
  * Simple Bob Jenkins's hash algorithm taken from the
