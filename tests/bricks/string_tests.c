@@ -7,7 +7,7 @@ char *test_create_from_literal() {
   String *string = String_create("0123456789");
 
   assert_ints_equal(string_length(string), 10, "length");
-  assert_ints_equal(string_limit(string), 32, "limit");
+  assert_ints_equal(string_capacity(string), 32, "capacity");
   assert_strings_equal(string_value(string), "0123456789", "value");
 
   string_free(string);
@@ -25,7 +25,7 @@ char *test_create_from_allocated() {
   pfree(str);
 
   assert_ints_equal(string_length(string), 3, "length");
-  assert_ints_equal(string_limit(string), 8, "limit");
+  assert_ints_equal(string_capacity(string), 8, "capacity");
   assert_strings_equal(string_value(string), "foo", "value");
 
   string_free(string);
@@ -54,7 +54,7 @@ char *test_push_character() {
 
   String *string = String_create("foo");
 
-  assert_ints_equal(string_limit(string), 8, "limit");
+  assert_ints_equal(string_capacity(string), 8, "capacity");
 
   string_push(string, '.');
   assert_equal(string_length(string), 4, "first push: string length");
@@ -75,12 +75,12 @@ char *test_push_character() {
   string_push(string, '(');
   assert_equal(string_length(string), 8, "fifth push: string length");
   assert_strings_equal(string_value(string), "foo.bar(", "string value");
-  assert_ints_equal(string_limit(string), 8, "limit");
+  assert_ints_equal(string_capacity(string), 8, "capacity");
 
   string_push(string, ')');
   assert_equal(string_length(string), 9, "fifth push: string length");
   assert_strings_equal(string_value(string), "foo.bar()", "string value");
-  assert_ints_equal(string_limit(string), 32, "limit");
+  assert_ints_equal(string_capacity(string), 32, "capacity");
 
   string_free(string);
 
@@ -92,13 +92,13 @@ char *test_concat() {
 
   String *string = String_create("foo");
 
-  assert_ints_equal(string_limit(string), 8, "limit");
+  assert_ints_equal(string_capacity(string), 8, "capacity");
 
   string_concat(string, ".bar()");
 
   assert_equal(string_length(string), 9, "fifth push: string length");
   assert_strings_equal(string_value(string), "foo.bar()", "string value");
-  assert_ints_equal(string_limit(string), 32, "limit");
+  assert_ints_equal(string_capacity(string), 32, "capacity");
 
   string_free(string);
 

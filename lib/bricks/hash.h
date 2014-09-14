@@ -8,20 +8,16 @@
 
 typedef struct Hash {
   int length;
-  int limit;
-  // Array *values;
+  int capacity;
+  Array *values;
 } Hash;
 
 #define hash_values(H)    ((H)->values)
 #define hash_length(H)    ((H)->length)
-#define hash_limit(H)     ((H)->limit)
+#define hash_capacity(H)     ((H)->capacity)
+#define hash_free(H)      ((array_free(hash_values(H))), (pfree(hash)))
 
 static uint32_t  Hash_algorithm(String *string);
 Hash            *Hash_create(int length);
-
-// static void inline hash_free(Hash *hash) {
-//   array_free(hash_values(hash));
-//   pfree(hash);
-// }
 
 #endif

@@ -11,13 +11,13 @@
 
 typedef struct String {
   int length;
-  int limit;
+  int capacity;
 
   CHAR *value;
 } String;
 
 #define string_length(S)      ((S)->length)
-#define string_limit(S)       ((S)->limit)
+#define string_capacity(S)       ((S)->capacity)
 #define string_value(S)       ((S)->value)
 #define string_free(S)        ((pfree(string_value((String *)S))), (pfree(S)))
 #define string_char_at(S, I)  ((string_length(S) > I) ? (string_value(S)[I]) : '\0')

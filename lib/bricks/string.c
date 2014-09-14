@@ -10,12 +10,12 @@ String *String_create(CHAR *str) {
   check_mem(string);
 
   int length = STRLEN(str);
-  int limit = Expandable_limit(length);
-  CHAR *value = calloc(limit + 1, sizeof(CHAR));
+  int capacity = Expandable_capacity(length);
+  CHAR *value = calloc(capacity + 1, sizeof(CHAR));
   check_mem(value);
 
   string_length(string) = length;
-  string_limit(string)  = limit;
+  string_capacity(string)  = capacity;
   string_value(string)  = value;
 
   STRCPY(value, str);
@@ -27,9 +27,9 @@ error:
 }
 
 void string_push(String *string, CHAR c) {
-  if ( !(string_length(string) < string_limit(string)) ) {
-    int limit = Expandable_limit(string_length(string));
-    Boolean success = string_expand(string, limit);
+  if ( !(string_length(string) < string_capacity(string)) ) {
+    int capacity = Expandable_capacity(string_length(string));
+    Boolean success = string_expand(string, capacity);
     check(success, "Unable to allocate memory to expand string");
   }
 
@@ -40,11 +40,11 @@ error:
   return;
 }
 
-Boolean string_expand(String *string, int limit) {
-  CHAR *value = realloc(string_value(string), sizeof(CHAR)*limit);
+Boolean string_expand(String *string, int capacity) {
+  CHAR *value = realloc(string_value(string), sizeof(CHAR)*capacity);
   check_mem(value);
   string_value(string) = value;
-  string_limit(string) = limit;
+  string_capacity(string) = capacity;
 
   return true;
 error:
@@ -54,9 +54,9 @@ error:
 void string_concat(String *string, CHAR *str) {
   int needed_length = STRLEN(str) + string_length(string);
 
-  if ( !(needed_length < string_limit(string)) ) {
-    int limit = Expandable_limit(needed_length);
-    Boolean success = string_expand(string, limit);
+  if ( !(needed_length < string_capacity(string)) ) {
+    int capacity = Expandable_capacity(needed_length);
+    Boolean success = string_expand(string, capacity);
     check(success, "Unable to allocate memory to expand string");
   }
 

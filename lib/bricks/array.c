@@ -6,13 +6,13 @@
 #include "array.h"
 
 
-Array *Array_create() {
+Array *Array_create(int capacity) {
   Array *array = calloc(1, sizeof(Array));
   check_mem(array);
   array_length(array) = 0;
-  array_limit(array)  = DEFAULT_ARRAY_LIMIT;
+  array_capacity(array)  = capacity;
 
-  void **values = calloc(DEFAULT_ARRAY_LIMIT, sizeof(void *));
+  void **values = calloc(capacity, sizeof(void *));
   check_mem(values);
   array->values = values;
 
@@ -23,9 +23,9 @@ error:
 }
 
 void array_push(Array *array, void *element) {
-  if (array_limit(array) == array_length(array)) {
-    int limit = Expandable_limit(array_limit(array));
-    Boolean success = array_expand(array, limit);
+  if (array_capacity(array) == array_length(array)) {
+    int capacity = Expandable_capacity(array_capacity(array));
+    Boolean success = array_expand(array, capacity);
     check(success, "unable to reallocate memory for expanding array");
   }
 
@@ -35,11 +35,11 @@ error:
   return;
 }
 
-Boolean array_expand(Array *array, int limit) {
-  void **values = realloc(array_values(array), sizeof(void *) * limit);
+Boolean array_expand(Array *array, int capacity) {
+  void **values = realloc(array_values(array), sizeof(void *) * capacity);
   check_mem(values);
   array_values(array) = values;
-  array_limit(array)  = limit;
+  array_capacity(array)  = capacity;
 
   return true;
 error:
@@ -69,9 +69,9 @@ void *array_pop(Array *array) {
 }
 
 void array_set(Array *array, int index, void *value) {
-  if (array_limit(array) <= index) {
-    int limit = Expandable_limit(index);
-    Boolean success = array_expand(array, limit);
+  if (array_capacity(array) <= index) {
+    int capacity = Expandable_capacity(index);
+    Boolean success = array_expand(array, capacity);
     check(success, "unable to reallocate memory for expanding array");
   }
 
