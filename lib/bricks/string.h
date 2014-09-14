@@ -2,6 +2,7 @@
 #define __bricks_string
 
 #include <string.h>
+#include <stdlib.h>
 #include "bricks.h"
 
 #define CHAR      char
@@ -23,9 +24,10 @@ typedef struct String {
 #define string_char_at(S, I)  ((string_length(S) > I) ? (string_value(S)[I]) : '\0')
 #define string_empty(S)       (string_length(S) == 0)
 
-String *String_create(CHAR *value);
-void    string_push(String *string, CHAR c);
-void    string_concat(String *string, CHAR *str);
-Boolean string_expand(String *string, int length);
+String    *String_create(CHAR *value);
+void       string_push(String *string, CHAR c);
+void       string_concat(String *string, CHAR *str);
+Boolean    string_expand(String *string, int length);
+uint32_t   string_hash(String *string);
 
 #endif

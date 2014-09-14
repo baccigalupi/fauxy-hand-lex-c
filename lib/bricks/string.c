@@ -66,3 +66,26 @@ void string_concat(String *string, CHAR *str) {
 error:
   return;
 }
+
+/**
+ * Simple Bob Jenkins's hash algorithm taken from the
+ * wikipedia description.
+ */
+uint32_t string_hash(String *string) {
+  size_t length = string_length(string);
+  char *key =     string_value(string);
+  uint32_t hash = 0;
+  uint32_t i = 0;
+
+  for (hash = i = 0; i < length; ++i) {
+    hash += key[i];
+    hash += (hash << 10);
+    hash ^= (hash >> 6);
+  }
+
+  hash += (hash << 3);
+  hash ^= (hash >> 11);
+  hash += (hash << 15);
+
+  return hash;
+}

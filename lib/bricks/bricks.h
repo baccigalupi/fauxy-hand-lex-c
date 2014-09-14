@@ -22,11 +22,11 @@ typedef enum {
 #define object_value(O)      ((O)->value)
 
 // EXPANDABLE OBJECT METHODS
-static inline int Expandable_capacity(int len) {
+static inline int Expandable_capacity(int capacity) {
   int exponent = 1;
-  while ( len > 1 ) {
+  while ( capacity > 1 ) {
     exponent ++;
-    len = len >> 1;
+    capacity = capacity >> 1;
   }
   return pow(2, exponent+1);
 }
