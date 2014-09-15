@@ -71,11 +71,11 @@ error:
  * Simple Bob Jenkins's hash algorithm taken from the
  * wikipedia description.
  */
-uint32_t string_hash(String *string) {
+Hash string_hash(String *string) {
   size_t length = string_length(string);
   char *key =     string_value(string);
-  uint32_t hash = 0;
-  uint32_t i = 0;
+  Hash hash = 0;
+  Hash i = 0;
 
   for (hash = i = 0; i < length; ++i) {
     hash += key[i];

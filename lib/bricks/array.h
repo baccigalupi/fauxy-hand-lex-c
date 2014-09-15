@@ -13,7 +13,7 @@ typedef struct Array {
 typedef void (ArrayIterator)(void *);
 
 #define array_length(A)      ((A)->length)
-#define array_capacity(A)       ((A)->capacity)
+#define array_capacity(A)    ((A)->capacity)
 #define array_values(A)      ((A)->values)
 #define array_at_index(A, I) (array_values(A)[I])
 #define array_get(A, I)      array_at_index(A, I)
