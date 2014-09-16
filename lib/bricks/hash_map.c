@@ -10,7 +10,7 @@ HashMap *HashMap_create(int capacity) {
 
   hash_map_capacity(hash_map) = capacity;
   hash_map_values(hash_map) = Array_create(capacity);
-    check(hash_map_values(hash_map), "unable to create hash_map values array");
+  check(hash_map_values(hash_map), "unable to create hash_map values array");
 
   return hash_map;
 error:
@@ -53,7 +53,8 @@ void hash_map_set(HashMap *hash_map, String *key, void *value) {
   // create list if value at index in void
   List *list = hash_map_list_at_index(hash_map, index);
   if ( !list ) {
-    list = hash_map_list_at_index(hash_map, index) = List_create();
+    list = List_create();
+    array_set(hash_map_values(hash_map), index, list);
     check(hash_map_list_at_index(hash_map, index), "unable to create hash_map list in values");
   }
 
@@ -75,4 +76,17 @@ void hash_map_set(HashMap *hash_map, String *key, void *value) {
 error:
   // TODO: start raising errors on set fails??
   return;
+}
+
+void hash_map_free_list_values(HashMap *hash_map) {
+  int i;
+  Array *values = hash_map_values(hash_map);
+
+  int length = array_length(values);
+  for(i = 0; i < length; i++) {
+    List *list = array_at_index(values, i);
+    if (list) {
+      list_free(list);
+    }
+  }
 }

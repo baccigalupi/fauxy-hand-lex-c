@@ -17,7 +17,7 @@ char *test_list_first_push() {
   assert_equal(list->first->next, NULL, "first node next is null");
   assert_equal(list->first->prev, NULL, "first node prev is null");
 
-  list_destroy(list);
+  list_free(list);
 
   return NULL;
 }
@@ -37,7 +37,7 @@ char *test_list_second_push() {
   assert_equal(list->first->next, list->last, "first node points next to last node");
   assert_equal(list->last->prev, list->first, "last node points prev to first node");
 
-  list_destroy(list);
+  list_free(list);
 
   return NULL;
 }
@@ -69,7 +69,7 @@ char *test_list_additional_pushes() {
   assert_equal(middle_node->next, last_node,      "connection middle node to next");
   assert_equal(last_node->prev, middle_node,      "connection last node to middle node");
 
-  list_destroy(list);
+  list_free(list);
 
   return NULL;
 }
@@ -91,7 +91,7 @@ char *test_list_pop() {
   assert_strings_equal(list_last(list), str_2, "remove last node");
   assert_equal(list->last->next, NULL, "nullify reference to next node on last node");
 
-  list_destroy(list);
+  list_free(list);
 
   return NULL;
 }
@@ -120,7 +120,7 @@ char *test_multiple_pops() {
 
   value = list_pop(list); // to check that there isn't a memory error
 
-  list_destroy(list);
+  list_free(list);
 
   return NULL;
 }
@@ -139,7 +139,7 @@ char *test_list_unshift() {
   assert_equal(list->first->next, NULL, "first next is null");
   assert_equal(list->first->prev, NULL, "last prev is null");
 
-  list_destroy(list);
+  list_free(list);
 
   return NULL;
 }
@@ -160,7 +160,7 @@ char *test_list_unshift_second_time() {
   assert_equal(list->first->next, list->last, "first node points to the next");
   assert_equal(list->last->prev, list->first, "last node to points to the previous");
 
-  list_destroy(list);
+  list_free(list);
 
   return NULL;
 }
@@ -191,7 +191,7 @@ char *test_list_unshift_additional_time() {
   assert_equal(middle_node->next, last_node,      "connect middle node to next");
   assert_equal(last_node->prev, middle_node,      "connect last node to middle node");
 
-  list_destroy(list);
+  list_free(list);
 
   return NULL;
 }
@@ -212,7 +212,7 @@ char *test_list_shift() {
   assert_ints_equal(list_length(list), 2,     "decrement count");
   assert_strings_equal(list_first(list), str_2, "different first value");
 
-  list_destroy(list);
+  list_free(list);
 
   return NULL;
 }
@@ -241,7 +241,7 @@ char *test_multiple_shifts() {
 
   value = list_shift(list); // to make sure there is no memory error
 
-  list_destroy(list);
+  list_free(list);
 
   return NULL;
 }
@@ -268,7 +268,7 @@ char *test_clear() {
   assert_equal(list->first->next->value, NULL, "middle value");
   assert_equal(list_last(list), NULL,          "last value");
 
-  list_destroy(list);
+  list_free(list);
 
   return NULL;
 }

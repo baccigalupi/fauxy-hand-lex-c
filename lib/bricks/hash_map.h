@@ -16,11 +16,12 @@ typedef struct HashMap {
 #define hash_map_length(H)            ((H)->length)
 #define hash_map_capacity(H)          ((H)->capacity)
 #define hash_map_index_for_key(H, K)  (string_hash(K) % hash_map_capacity(H))
-#define hash_map_free(H)              ((array_free(hash_map_values(H))), (pfree(H)))
+#define hash_map_free(H)              ((hash_map_free_list_values(H)), (array_free(hash_map_values(H))), (pfree(H)))
 
 HashMap         *HashMap_create(int length);
 void            *hash_map_get(HashMap *hash, String *key);
 Node            *hash_map_get_node(HashMap *hash, String *key);
 void             hash_map_set(HashMap *hash, String *key, void *value);
+void             hash_map_free_list_values(HashMap *hash_map);
 
 #endif

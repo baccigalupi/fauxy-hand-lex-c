@@ -125,8 +125,8 @@ error:
   return;
 }
 
-void list_destroy(List *list) {
-  check(list, "list in list_destroy is NULL");
+void list_free(List *list) {
+  check(list, "list in list_free is NULL");
 
   Node *node = list->first;
 

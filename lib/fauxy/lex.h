@@ -147,7 +147,7 @@ Token     *lex_get_next_lexeme(LexState *lex_state);
 Token     *token_from_lexeme(Token *lexeme);
 Boolean    lexed_word_is_number(char *word);
 
-void static inline token_list_destroy(List *list) {
+void static inline token_list_free(List *list) {
   Node *node;
   Token *token;
   list_each(list, node) {

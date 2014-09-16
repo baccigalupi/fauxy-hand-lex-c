@@ -23,7 +23,7 @@ void  list_unshift(List *list, void *value);
 void *list_shift(  List *list);
 
 void  list_print(  List *list);
-void  list_destroy(List *list);
+void  list_free(List *list);
 void  list_clear(  List *list);
 void  list_clear_and_destroy(List *list);
 

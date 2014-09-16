@@ -39,7 +39,7 @@ char *test_float() {
   assert_equal(token_line(token), 1,                    "token line");
   assert_equal(token_column(token), 1,                  "token column");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -60,7 +60,7 @@ char *test_float_with_padding() {
   assert_equal(token_line(token), 1, "token line");
   assert_equal(token_column(token), 5, "token column");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -88,7 +88,7 @@ char *test_two_floats_with_padding() {
   assert_equal(token_line(token), 1, "second token line");
   assert_equal(token_column(token), 13, "second token column");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -108,7 +108,7 @@ char *test_line_end() {
   assert_equal(token_line(token), 1, "token line");
   assert_equal(token_column(token), 2, "token column");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -136,7 +136,7 @@ char *test_line_end_with_float() {
   assert_equal(token_line(token), 2, "token line for number");
   assert_equal(token_column(token), 4, "token column for number");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -154,7 +154,7 @@ char *test_integer() {
   assert_equal(object_type(token), FX_TOKEN_NUMBER, "token type");
   assert_equal(token_number_value(token), (INT)314, "token value");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -175,7 +175,7 @@ char *test_single_quoted_string_no_space() {
   assert_equal(token_line(token), 1, "token line");
   assert_equal(token_column(token), 1, "token column");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -196,7 +196,7 @@ char *test_double_quoted_string_no_space() {
   assert_equal(token_line(token), 1, "token line set incorrectly");
   assert_equal(token_column(token), 1, "token column set incorrectly");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -218,7 +218,7 @@ char *test_single_quoted_string_with_space() {
   assert_equal(token_line(token), 1, "token line");
   assert_equal(token_column(token), 2, "token column");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -239,7 +239,7 @@ char *test_double_quoted_string_with_space() {
   assert_equal(token_line(token), 1, "token line");
   assert_equal(token_column(token), 2, "token column");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -268,7 +268,7 @@ char *test_strings_with_line_break() {
   assert_equal(token_line(token), 2, "token line");
   assert_equal(token_column(token), 8, "token column");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -281,7 +281,7 @@ char *test_block_comment() {
 
   assert_equal(list_length(list), 0, "list length");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 }
@@ -308,7 +308,7 @@ char *test_block_comment_affect_line() {
   assert_equal(token_line(token), 3,                   "token line");
   assert_equal(token_column(token), 2,                 "token column");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -322,7 +322,7 @@ char *test_line_comment() {
 
   assert_equal(list_length(list), 1, "list length");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 }
@@ -357,7 +357,7 @@ char *test_line_comment_affect_line() {
   assert_equal(token_line(token), 2,                   "token line");
   assert_equal(token_column(token), 2,                 "token column");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -400,7 +400,7 @@ char *test_statement_end() {
   assert_equal(object_type(token), FX_TOKEN_NUMBER,    "float number type");
   assert_equal(token_number_value(token), (FLOAT)3.14,   "float number value");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -420,7 +420,7 @@ char *test_regex() {
   assert_equal(object_type(token), FX_TOKEN_REGEX, "token type");
   assert_equal(strcmp(token_string_value(token),"/[a-z]/i"), 0, "token value");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -439,7 +439,7 @@ char *test_regex_with_space() {
   assert_equal(object_type(token), FX_TOKEN_REGEX, "token type");
   assert_equal(strcmp(token_string_value(token),"/[a-z] [0-9]/i"), 0, "token value");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -458,7 +458,7 @@ char *test_basic_identifier() {
   assert_equal(object_type(token), FX_TOKEN_ID, "token type");
   assert_strings_equal(token_string_value(token),"gerbil", "token value");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -477,7 +477,7 @@ char *test_global_identifier() {
   assert_equal(object_type(token), FX_TOKEN_GLOBAL_ID, "token type");
   assert_strings_equal(token_string_value(token),"Gerbil", "lex did not build right value for type id");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -496,7 +496,7 @@ char *test_number_starting_with_minus_sign() {
   assert_equal(object_type(token), FX_TOKEN_NUMBER, "token type");
   assert_equal(token_number_value(token), (FLOAT)(-1.23), "token value");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -515,7 +515,7 @@ char *test_exponential_numbers() {
   assert_equal(object_type(token), FX_TOKEN_NUMBER, "token type");
   assert_equal(token_number_value(token), (FLOAT)(1E-8), "token value");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -535,7 +535,7 @@ char *test_ids_starting_as_numbers() {
   assert_equal(object_type(token), FX_TOKEN_ID,  "token type");
   assert_strings_equal(token_string_value(token), "123foo", "token value");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -555,7 +555,7 @@ char *test_ids_with_hyphens_and_underscores() {
   assert_equal(object_type(token), FX_TOKEN_ID,  "token type");
   assert_strings_equal(token_string_value(token), "123-foo_bar-", "token value");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -586,7 +586,7 @@ char *test_identifier_with_dot_method_call() {
   assert_equal(object_type(token), FX_TOKEN_ID, "id token type");
   assert_strings_equal(token_string_value(token), "open", "token value");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -617,7 +617,7 @@ char *test_identifier_with_dot_method_call_and_argument() {
   assert_equal(object_type(token), FX_TOKEN_GROUP_END, "group end token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -648,7 +648,7 @@ char *test_identifier_with_dot_method_call_and_arguments() {
   assert_equal(object_type(token), FX_TOKEN_GROUP_END, "group end lex type");
   assert_equal(object_value(token), NULL, "lex value");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -673,7 +673,7 @@ char *test_identifier_with_dot_method_call_and_deferred_arg() {
   assert_equal(object_type(token), FX_TOKEN_COMMA, "comma token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -705,7 +705,7 @@ char *test_setting_local_variables() {
   assert_equal(object_type(token), FX_TOKEN_STRING, "string token type");
   assert_strings_equal(token_string_value(token), "bar", "string token value");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -731,7 +731,7 @@ char *test_ids_can_start_with_setter() {
   assert_equal(object_type(token), FX_TOKEN_ID, "id token type starting with =");
   assert_strings_equal(token_string_value(token), "=bar", "token value");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -750,7 +750,7 @@ char *test_atom() {
   assert_equal(object_type(token), FX_TOKEN_ATOM, "token type");
   assert_strings_equal(token_string_value(token), "bar", "token value");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -781,7 +781,7 @@ char *test_attribute_assignment() {
   assert_equal(object_type(token), FX_TOKEN_ID, "id token identifier");
   assert_strings_equal(token_string_value(token), "bar", "token vaule");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -819,7 +819,7 @@ char *test_block_start_no_arguments() {
   assert_equal(object_type(token), FX_TOKEN_LINE_END, "line end token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -863,7 +863,7 @@ char *test_block_start_statement_and_end() {
   assert_equal(object_type(token), FX_TOKEN_BLOCK_END, "block end token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
@@ -918,7 +918,7 @@ char *test_block_with_arguments() {
   assert_equal(object_type(token), FX_TOKEN_BLOCK_END, "block end token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  token_list_destroy(list);
+  token_list_free(list);
 
   return NULL;
 error:
