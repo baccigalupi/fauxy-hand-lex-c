@@ -1,5 +1,3 @@
-#include <assert.h>
-
 #include "../../lib/fauxy/lex.h"
 #include "../../lib/fauxy/token.h"
 #include "../../lib/bricks/list.h"
@@ -28,7 +26,7 @@ error:
 }
 
 char *test_float() {
-  List *list = lex("1.324");
+  List *list = lex_text("1.324");
   Token *token = get_token_from_list(list, 0);
   check(token, "token was not attached to node");
 
@@ -49,7 +47,7 @@ error:
 char *test_float_with_padding() {
   spec_describe("Lexing a float with padding");
 
-  List *list = lex("    1.324   ");
+  List *list = lex_text("    1.324   ");
   assert_equal(list_length(list), 1, "lex created wrong number of tokens");
 
   Token *token = get_token_from_list(list, 0);
@@ -69,7 +67,7 @@ error:
 
 char *test_two_floats_with_padding() {
   spec_describe("Lexing two floats with padding");
-  List *list = lex("    1.324   4.0  ");
+  List *list = lex_text("    1.324   4.0  ");
   assert_equal(list_length(list), 2, "list length");
 
   Token *token = get_token_from_list(list, 0);
@@ -97,7 +95,7 @@ error:
 
 char *test_line_end() {
   spec_describe("Lexing line end with padding");
-  List *list = lex(" \n ");
+  List *list = lex_text(" \n ");
   assert_equal(list_length(list), 1, "list_length");
 
   Token *token = get_token_from_list(list, 0);
@@ -117,7 +115,7 @@ error:
 
 char *test_line_end_with_float() {
   spec_describe("Lexing line end with float and padding");
-  List *list = lex(" \n   3.14");
+  List *list = lex_text(" \n   3.14");
   assert_equal(list_length(list), 2, "list length");
 
   Token *token = get_token_from_list(list, 0);
@@ -145,7 +143,7 @@ error:
 
 char *test_integer() {
   spec_describe("Lexing interger");
-  List *list = lex("314");
+  List *list = lex_text("314");
   assert_equal(list_length(list), 1, "list length");
 
   Token *token = get_token_from_list(list, 0);
@@ -164,7 +162,7 @@ error:
 char *test_single_quoted_string_no_space() {
   spec_describe("Lexing single simple quoted strings");
 
-  List *list = lex("'hello'");
+  List *list = lex_text("'hello'");
   assert_equal(list_length(list), 1, "list length");
 
   Token *token = get_token_from_list(list, 0);
@@ -185,7 +183,7 @@ error:
 char *test_double_quoted_string_no_space() {
   spec_describe("Lexing double quoted basic string");
 
-  List *list = lex("\"hello\"");
+  List *list = lex_text("\"hello\"");
   assert_equal(list_length(list), 1, "list length");
 
   Token *token = get_token_from_list(list, 0);
@@ -206,7 +204,7 @@ error:
 char *test_single_quoted_string_with_space() {
   spec_describe("Lexing single quoted string containing space, padded");
 
-  List *list = lex(" 'hello world' ");
+  List *list = lex_text(" 'hello world' ");
 
   assert_equal(list_length(list), 1, "list length");
 
@@ -228,7 +226,7 @@ error:
 char *test_double_quoted_string_with_space() {
   spec_describe("Lexing double quoted string containing space, padded");
 
-  List *list = lex(" \"hello world\" ");
+  List *list = lex_text(" \"hello world\" ");
   assert_equal(list_length(list), 1, "list length");
 
   Token *token = get_token_from_list(list, 0);
@@ -249,7 +247,7 @@ error:
 char *test_strings_with_line_break() {
   spec_describe("Multiple string types, one containing line break");
 
-  List *list = lex(" \"hello\nworld\" 'wha?'");
+  List *list = lex_text(" \"hello\nworld\" 'wha?'");
   assert_equal(list_length(list), 2, "list length");
 
   Token *token = get_token_from_list(list, 0);
@@ -277,7 +275,7 @@ error:
 
 char *test_block_comment() {
   spec_describe("Lexing block comments");
-  List *list = lex(" /* hello\ncomment */ ");
+  List *list = lex_text(" /* hello\ncomment */ ");
 
   assert_equal(list_length(list), 0, "list length");
 
@@ -289,7 +287,7 @@ char *test_block_comment() {
 char *test_block_comment_affect_line() {
   spec_describe("Lexing block comment followed by float");
 
-  List *list = lex("/* hello\ncomment */\n 3.14");
+  List *list = lex_text("/* hello\ncomment */\n 3.14");
   assert_equal(list_length(list), 2, "list length");
 
   Token *token = get_token_from_list(list, 0);
@@ -318,7 +316,7 @@ error:
 char *test_line_comment() {
   spec_describe("Lexing line comment preceded by float");
 
-  List *list = lex("3.14 // hello comment");
+  List *list = lex_text("3.14 // hello comment");
 
   assert_equal(list_length(list), 1, "list length");
 
@@ -330,7 +328,7 @@ char *test_line_comment() {
 char *test_line_comment_affect_line() {
   spec_describe("Lexing int line comment and float on next line");
 
-  List *list = lex("1 // hello comment\n 3.14");
+  List *list = lex_text("1 // hello comment\n 3.14");
   assert_equal(list_length(list), 3, "list length");
 
   Token *token = get_token_from_list(list, 0);
@@ -367,7 +365,7 @@ error:
 char *test_statement_end() {
   spec_describe("Lexing multiple statements seperated by semicolons");
 
-  List *list = lex("'hello'; 1234; 3.14");
+  List *list = lex_text("'hello'; 1234; 3.14");
   assert_equal(list_length(list), 5, "list length");
 
   Token *token = get_token_from_list(list, 0);
@@ -410,7 +408,7 @@ error:
 char *test_regex() {
   spec_describe("Lexing regex with trailing modifier, padded");
 
-  List *list = lex(" /[a-z]/i ");
+  List *list = lex_text(" /[a-z]/i ");
 
   assert_equal(list_length(list), 1, "list length");
 
@@ -430,7 +428,7 @@ error:
 char *test_regex_with_space() {
   spec_describe("Lexing regex containing white space and with trailing modifier, padded");
 
-  List *list = lex(" /[a-z] [0-9]/i ");
+  List *list = lex_text(" /[a-z] [0-9]/i ");
   assert_equal(list_length(list), 1, "list length");
 
   Token *token = get_token_from_list(list, 0);
@@ -449,7 +447,7 @@ error:
 char *test_basic_identifier() {
   spec_describe("Lexing padded identifier");
 
-  List *list = lex(" gerbil ");
+  List *list = lex_text(" gerbil ");
   assert_equal(list_length(list), 1, "list length");
 
   Token *token = get_token_from_list(list, 0);
@@ -468,7 +466,7 @@ error:
 char *test_global_identifier() {
   spec_describe("Lexing global identifier with padding");
 
-  List *list = lex(" Gerbil ");
+  List *list = lex_text(" Gerbil ");
   assert_equal(list_length(list), 1, "list length");
 
   Token *token = get_token_from_list(list, 0);
@@ -487,7 +485,7 @@ error:
 char *test_number_starting_with_minus_sign() {
   spec_describe("Lexing number starting with minus sign");
 
-  List *list = lex(" -1.23");
+  List *list = lex_text(" -1.23");
   assert_equal(list_length(list), 1, "list length");
 
   Token *token = get_token_from_list(list, 0);
@@ -506,7 +504,7 @@ error:
 char *test_exponential_numbers() {
   spec_describe("Lexing exponential numbers");
 
-  List *list = lex(" 1E-8");
+  List *list = lex_text(" 1E-8");
   assert_equal(list_length(list), 1, "list length");
 
   Token *token = get_token_from_list(list, 0);
@@ -525,7 +523,7 @@ error:
 char *test_ids_starting_as_numbers() {
   spec_describe("Lexing identifiers starting with numbers");
 
-  List *list = lex(" 123foo");
+  List *list = lex_text(" 123foo");
 
   assert_equal(list_length(list), 1, "list length");
 
@@ -545,7 +543,7 @@ error:
 char *test_ids_with_hyphens_and_underscores() {
   spec_describe("Lexing ids with numbers hyphens and underscores");
 
-  List *list = lex(" 123-foo_bar- ");
+  List *list = lex_text(" 123-foo_bar- ");
 
   assert_equal(list_length(list), 1, "list length");
 
@@ -565,7 +563,7 @@ error:
 char *test_identifier_with_dot_method_call() {
   spec_describe("Lexing dot attribute selection");
 
-  List *list = lex(" file.open ");
+  List *list = lex_text(" file.open ");
   assert_equal(list_length(list), 3, "list length");
 
   Token *token = get_token_from_list(list, 0);
@@ -596,7 +594,7 @@ error:
 char *test_identifier_with_dot_method_call_and_argument() {
   spec_describe("Lexing dot method calls with argument");
 
-  List *list = lex(" file.open('w') ");
+  List *list = lex_text(" file.open('w') ");
   assert_equal(list_length(list), 6, "list length");
 
   Token *token = get_token_from_list(list, 3);
@@ -627,7 +625,7 @@ error:
 char *test_identifier_with_dot_method_call_and_arguments() {
   spec_describe("Lexing identifier with dot method call and arguments");
 
-  List *list = lex(" gerbil.talk('squeak','bark') ");
+  List *list = lex_text(" gerbil.talk('squeak','bark') ");
   assert_equal(list_length(list), 8, "list length");
 
   Token *token = get_token_from_list(list, 5);
@@ -658,7 +656,7 @@ error:
 char *test_identifier_with_dot_method_call_and_deferred_arg() {
   spec_describe("Lexing method call with deferred argument");
 
-  List *list = lex(" gerbil.talk(_,'bark') ");
+  List *list = lex_text(" gerbil.talk(_,'bark') ");
   assert_equal(list_length(list), 8, "list length");
 
   Token *token = get_token_from_list(list, 4);
@@ -683,7 +681,7 @@ error:
 char *test_setting_local_variables() {
   spec_describe("Lexing setting of local variables");
 
-  List *list = lex(" foo = 'bar' ");
+  List *list = lex_text(" foo = 'bar' ");
   assert_equal(list_length(list), 3, "list length");
 
   Token *token = get_token_from_list(list, 0);
@@ -716,7 +714,7 @@ error:
 char *test_ids_can_start_with_setter() {
   spec_describe("Lexing identifiers starts with identifier");
 
-  List *list = lex(" foo =bar ");
+  List *list = lex_text(" foo =bar ");
   assert_equal(list_length(list), 2, "list_length");
 
   Token *token = get_token_from_list(list, 0);
@@ -741,7 +739,7 @@ error:
 char *test_atom() {
   spec_describe("Lexing atoms");
 
-  List *list = lex(" :bar ");
+  List *list = lex_text(" :bar ");
   assert_equal(list_length(list), 1, "list length");
 
   Token *token = get_token_from_list(list, 0);
@@ -760,7 +758,7 @@ error:
 char *test_attribute_assignment() {
   spec_describe("Lexing attribute assignment");
 
-  List *list = lex(" foo: bar ");
+  List *list = lex_text(" foo: bar ");
   assert_equal(list_length(list), 3, "list length");
 
   Token *token = get_token_from_list(list, 0);
@@ -791,7 +789,7 @@ error:
 char *test_block_start_no_arguments() {
   spec_describe("Lexing block start with no arguments");
 
-  List *list = lex(" list.each ->{ \n");
+  List *list = lex_text(" list.each ->{ \n");
 
   assert_equal(list_length(list), 6, "list length");
 
@@ -829,7 +827,7 @@ error:
 char *test_block_start_statement_and_end() {
   spec_describe("Lexing block start, statement and end, one line");
 
-  List *list = lex(" list.each -> {puts 'gerbil'}");
+  List *list = lex_text(" list.each -> {puts 'gerbil'}");
 
   assert_equal(list_length(list), 8, "list length");
 
@@ -872,7 +870,7 @@ error:
 
 char *test_block_with_arguments() {
   spec_describe("Lexing block with arguments and multiple statements");
-  List *list = lex(" object.each ->(key, value){puts key; puts value}");
+  List *list = lex_text(" object.each ->(key, value){puts key; puts value}");
 
   assert_equal(list_length(list), 16, "list length");
 

@@ -140,7 +140,7 @@ typedef struct LexState {
 #define lexeme_length(L)       (string_length(lexeme_value(L)))
 
 
-List      *lex(char *code);
+List      *lex_text(char *code);
 
 LexState  *LexState_create(String *code);
 Token     *lex_get_next_lexeme(LexState *lex_state);

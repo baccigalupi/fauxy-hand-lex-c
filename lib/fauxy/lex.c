@@ -12,7 +12,7 @@ error:
   return NULL;
 }
 
-List *lex(char *str) {
+List *lex_text(char *str) {
   List *list = List_create();
   check_mem(list);
 
