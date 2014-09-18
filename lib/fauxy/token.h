@@ -4,9 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../bricks/bricks.h"
-#include "../bricks/error_handling.h"
-
 #include "../bricks/string.h"
 #include "../bricks/number.h"
 

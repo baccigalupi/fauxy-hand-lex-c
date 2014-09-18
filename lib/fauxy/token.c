@@ -1,3 +1,6 @@
+#include "../bricks/bricks.h"
+#include "../bricks/error_handling.h"
+
 #include "token.h"
 
 Token *Token_create(String *value, int line, int column) {

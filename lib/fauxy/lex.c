@@ -1,5 +1,8 @@
 #include "lex.h"
 
+#include "../bricks/error_handling.h"
+#include "../bricks/string.h"
+
 LexState *LexState_create(String *code) {
   LexState *lex_state = calloc(1, sizeof(LexState));
   check_mem(lex_state);
