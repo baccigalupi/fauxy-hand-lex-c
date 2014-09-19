@@ -66,11 +66,11 @@ error:
 
 void *list_pop(List *list) {
   check(list,       "list in list_pop is NULL");
-  check(list->last, "list in list_pop in empty");
+  if (!(list->last)) { return NULL; }
 
   void *value = list_last(list);
   Node *old_tail = list->last;
-  check(old_tail, "list in list_pop has nothing to pop");
+  if (!old_tail) { return NULL; }
 
   Node *new_tail = old_tail->prev;
   if (new_tail) {
@@ -92,11 +92,11 @@ error:
 
 void *list_shift(List *list) {
   check(list,         "list in list_shift is NULL");
-  check(list->first,  "list in list_shift in empty");
+  if (!(list->first)) { return NULL; }
 
   void *value = list_first(list);
   Node *old_head = list->first;
-  check(old_head, "list in list_shift is ");
+  if (!old_head) { return NULL; }
 
   Node *new_head = old_head->next;
   list->first = new_head;
