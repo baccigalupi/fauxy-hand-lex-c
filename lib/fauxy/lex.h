@@ -8,6 +8,8 @@
 #include "../bricks/list.h"
 #include "token.h"
 
+typedef List Tokens;
+
 typedef struct LexState {
   String *code;
   int current;
