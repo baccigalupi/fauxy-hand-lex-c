@@ -18,12 +18,10 @@ typedef struct List {
 
 List *List_create();
 
-/*
-Node *list_pop_node(List *list)
-void  list_push_node(List *list, Node *node)
-Node *list_shift_node(List *list)
-Node  list_unshift_node(List *list, Node *node)
-*/
+Node *list_pop_node(List *list);
+void  list_push_node(List *list, Node *node);
+Node *list_shift_node(List *list);
+void  list_unshift_node(List *list, Node *node);
 
 void  list_push(   List *list, void *value);
 void *list_pop(    List *list);
