@@ -4,6 +4,7 @@
 #include "bricks.h"
 
 #include "list.h"
+#include "node.h"
 
 List *List_create() {
   List *list = calloc(1, sizeof(List));
@@ -13,30 +14,21 @@ error:
   return NULL;
 }
 
-Node *Node_create(void *value) {
-  Node *node = calloc(1, sizeof(Node));
-  check_mem(node);
-  node->value = value;
-  return node;
-error:
-  return NULL;
-}
-
-void  list_push(List *list, void *value) {
+void list_push(List *list, void *value) {
   check(list, "list in list_push is NULL");
 
   Node *new_node = Node_create(value);
 
   Node *current_tail = list->last;
   if (current_tail) {
-    current_tail->next = new_node;
-    new_node->prev = current_tail;
+    node_next(current_tail) = new_node;
+    node_prev(new_node)     = current_tail;
   } else {
-    list->first = new_node;
+    list_node_first(list)   = new_node;
   }
 
-  list->last = new_node;
-  list->length ++;
+  list_node_last(list) = new_node;
+  list_length(list) ++;
 
   return;
 error:
@@ -50,14 +42,14 @@ void list_unshift(List *list, void *value) {
 
   Node *current_head = list->first;
   if (current_head) {
-    current_head->prev = new_node;
-    new_node->next = current_head;
+    node_prev(current_head) = new_node;
+    node_next(new_node) = current_head;
   } else {
-    list->last = new_node;
+    list_node_last(list) = new_node;
   }
 
-  list->first = new_node;
-  list->length ++;
+  list_node_first(list) = new_node;
+  list_length(list) ++;
 
   return;
 error:
@@ -66,23 +58,23 @@ error:
 
 void *list_pop(List *list) {
   check(list,       "list in list_pop is NULL");
-  if (!(list->last)) { return NULL; }
+  if (!list_node_last(list)) { return NULL; }
 
   void *value = list_last(list);
-  Node *old_tail = list->last;
+  Node *old_tail = list_node_last(list);
   if (!old_tail) { return NULL; }
 
-  Node *new_tail = old_tail->prev;
+  Node *new_tail = node_prev(old_tail);
   if (new_tail) {
-    new_tail->next = NULL;   // set penultimate next to null
-    list->last = new_tail;   // set last on list to penultimate
+    node_next(new_tail) = NULL;   // set penultimate next to null
+    list_node_last(list) = new_tail;   // set last on list to penultimate
   } else {
     // if there is no new tail, it is empty yo!
-    list->last = NULL;
-    list->first = NULL;
+    list_node_last(list) = NULL;
+    list_node_first(list) = NULL;
   }
 
-  list->length --;          // decrement list count
+  list_length(list) --;          // decrement list count
   pfree(old_tail);          // pfree last node
 
   return value;
@@ -92,19 +84,19 @@ error:
 
 void *list_shift(List *list) {
   check(list,         "list in list_shift is NULL");
-  if (!(list->first)) { return NULL; }
+  if (!list_node_first(list)) { return NULL; }
 
   void *value = list_first(list);
-  Node *old_head = list->first;
+  Node *old_head = list_node_first(list);
   if (!old_head) { return NULL; }
 
-  Node *new_head = old_head->next;
-  list->first = new_head;
+  Node *new_head = node_next(old_head);
+  list_node_first(list) = new_head;
   if (!new_head) {
-    list->last = NULL;
+    list_node_last(list) = NULL;
   }
 
-  list->length --;
+  list_length(list) --;
   pfree(old_head);
 
   return value;
@@ -112,29 +104,16 @@ error:
   return NULL;
 }
 
-void list_clear(List *list) {
-  check(list, "list is NULL");
-
-  Node *node;
-  list_each(list, node) {
-    if (node->value) {
-      pfree(node->value);
-    }
-  }
-error:
-  return;
-}
-
 void list_free(List *list) {
   check(list, "list in list_free is NULL");
 
-  Node *node = list->first;
+  Node *node = list_node_first(list);
 
   if (node != NULL) {
     Node *next;
 
     while (node != NULL) {
-      next = node->next;
+      next = node_next(node);
       pfree(node);
       node = next;
     }
@@ -148,13 +127,13 @@ error:
 void  list_clear_and_destroy(List *list) {
   check(list, "list in list_clear_and_destroy is NULL");
 
-  Node *node = list->first;
+  Node *node = list_node_first(list);
   if (node != NULL) {
     Node *next;
 
     while (node != NULL) {
-      next = node->next;
-      pfree(node->value);
+      next = node_next(node);
+      pfree(node_value(node));
       pfree(node);
       node = next;
     }

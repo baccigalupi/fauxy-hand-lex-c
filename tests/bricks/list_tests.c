@@ -246,33 +246,6 @@ char *test_multiple_shifts() {
   return NULL;
 }
 
-char *test_clear() {
-  spec_describe("Clear");
-  List *list = List_create();
-
-  // can't deallocate what you haven't allocated!
-  char *str_1 = calloc(10, sizeof(char));
-  strcat(str_1, "first");
-  char *str_2 = calloc(10, sizeof(char));
-  strcat(str_2, "second");
-  char *str_3 = calloc(10, sizeof(char));
-  strcat(str_3, "third");
-
-  list_push(list, str_1);
-  list_push(list, str_2);
-  list_push(list, str_3);
-
-  list_clear(list);
-
-  assert_equal(list_first(list), NULL,         "first value");
-  assert_equal(list->first->next->value, NULL, "middle value");
-  assert_equal(list_last(list), NULL,          "last value");
-
-  list_free(list);
-
-  return NULL;
-}
-
 char *test_clear_and_destroy() {
   spec_describe("Clear and destroy");
   List *list = List_create();
@@ -311,7 +284,6 @@ char *all_specs() {
   run_spec(test_list_shift);
   run_spec(test_multiple_shifts);
 
-  run_spec(test_clear);
   run_spec(test_clear_and_destroy);
 
   spec_teardown();

@@ -17,14 +17,21 @@ typedef struct List {
 #define list_each(L, N)       for (N = L->first; N != NULL; N = N->next)
 
 List *List_create();
+
+/*
+Node *list_pop_node(List *list)
+void  list_push_node(List *list, Node *node)
+Node *list_shift_node(List *list)
+Node  list_unshift_node(List *list, Node *node)
+*/
+
 void  list_push(   List *list, void *value);
 void *list_pop(    List *list);
 void  list_unshift(List *list, void *value);
 void *list_shift(  List *list);
 
-void  list_print(  List *list);
 void  list_free(List *list);
-void  list_clear(  List *list);
 void  list_clear_and_destroy(List *list);
+
 
 #endif
