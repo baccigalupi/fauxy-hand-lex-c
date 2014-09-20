@@ -23,7 +23,7 @@ char *test_parsing_primary_statment_number() {
 void specs() {
   spec_setup("Parsing");
 
-  run_spec(test_parsing_primary_statment_number);
+  // run_spec(test_parsing_primary_statment_number);
 
   spec_teardown();
 }

@@ -43,15 +43,6 @@ typedef enum {
   FX_TOKEN_ATOM                 // starts with :
 } TokenType;
 
-typedef enum {
-  FX_CLOSING_NULL,              // NULL state for iffiness
-  FX_CLOSING_SINGLE_QUOTE,
-  FX_CLOSING_DOUBLE_QUOTE,
-  FX_CLOSING_LINE_COMMENT,
-  FX_CLOSING_BLOCK_COMMENT,
-  FX_OPENING_REGEX,
-  FX_CLOSING_REGEX
-} ClosingBookend;
 
 typedef struct Token {
   TokenType  type;

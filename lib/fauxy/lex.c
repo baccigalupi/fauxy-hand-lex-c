@@ -125,10 +125,10 @@ Token *lex_get_next_lexeme(LexState *lex_state) {
     // strings, comments, regex, etc ...
     if ( string_empty(word) && lex_state_opens_at_current(lex_state) ) {
       starting_index = lex_state_current(lex_state);
-      lex_state_expects_closing(lex_state) = lex_state_closer(lex_state, c);
+      lex_state_lexical_bookend(lex_state) = lex_state_closer(lex_state);
     }
 
-    if ( lex_state_current_is_significant(lex_state, c) ) {
+    if ( lex_state_current_is_significant(lex_state) ) {
       starting_index = starting_index ? starting_index : (lex_state_current(lex_state));
       column = column ? column : (lex_state_column(lex_state));
       line =   line   ? line   : (lex_state_line(lex_state));
@@ -144,13 +144,13 @@ Token *lex_get_next_lexeme(LexState *lex_state) {
     if ( lex_state_is_open(lex_state) && starting_index < lex_state_current(lex_state) ) {
       // regexes are special, because there can be characters after the ending '/'
       // so we have to switch the state
-      lex_state_transition_regex_if_needed(lex_state, c);
+      lex_state_transition_regex_if_needed(lex_state);
 
-      if ( lex_state_will_close(lex_state, c) ) {
+      if ( lex_state_will_close(lex_state) ) {
         lex_state_close(lex_state);
         should_continue = false;
       }
-    } else if ( lex_state_current_is_significant(lex_state, c) && (
+    } else if ( lex_state_current_is_significant(lex_state) && (
         char_is_line_end(c) || char_is_statement_end(c) ||         // line ends usually significant of a statement end
         lex_state_end_of_word(lex_state) ||                        // end of normal word sequence
         word_is_method_selector(word, c)  ||                       // '.'
