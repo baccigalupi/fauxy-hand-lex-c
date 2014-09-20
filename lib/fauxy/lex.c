@@ -3,36 +3,36 @@
 #include "../bricks/error_handling.h"
 #include "../bricks/string.h"
 
-LexState *LexState_create(String *code) {
-  LexState *lex_state = calloc(1, sizeof(LexState));
-  check_mem(lex_state);
-  lex_state->code = code;
-  lex_state->line = 1;
-  lex_state->column = 1;
+SyntaxGeneratorState *SyntaxGeneratorState_create(String *code) {
+  SyntaxGeneratorState *state = calloc(1, sizeof(SyntaxGeneratorState));
+  check_mem(state);
+  state->code = code;
+  state->line = 1;
+  state->column = 1;
 
-  return lex_state;
+  return state;
 error:
   return NULL;
 }
 
-List *lex_text(char *str) {
+List *parse_text(char *str) {
   List *list = List_create();
   check_mem(list);
 
   String   *code =      String_create(str);
-  LexState *lex_state = LexState_create(code);
+  SyntaxGeneratorState *state = SyntaxGeneratorState_create(code);
 
   Token *lexeme = NULL;
 
-  while( lex_state_in_progress(lex_state) ) {
-    lexeme = lex_get_next_lexeme(lex_state);
+  while( lex_state_in_progress(state) ) {
+    lexeme = lex_get_next_lexeme(state);
     if (lexeme) {
       list_push(list, token_from_lexeme(lexeme));
     }
   }
 
   string_free(code);
-  pfree(lex_state);
+  pfree(state);
 
   return list;
 error:
@@ -112,57 +112,57 @@ error:
   return NULL;
 }
 
-Token *lex_get_next_lexeme(LexState *lex_state) {
+Token *lex_get_next_lexeme(SyntaxGeneratorState *state) {
   String *word = String_create("");
 
   int starting_index = 0; // used to track progress against comments
   int column = 0;
   int line =   0;
-  char c =     lex_state_current_char(lex_state);
+  char c =     lex_state_current_char(state);
   Boolean should_continue = true;
 
-  while ( lex_state_in_progress(lex_state) && should_continue ) {
+  while ( lex_state_in_progress(state) && should_continue ) {
     // strings, comments, regex, etc ...
-    if ( string_empty(word) && lex_state_opens_at_current(lex_state) ) {
-      starting_index = lex_state_current(lex_state);
-      lex_state_lexical_bookend(lex_state) = lex_state_closer(lex_state);
+    if ( string_empty(word) && lex_state_opens_at_current(state) ) {
+      starting_index = lex_state_current(state);
+      lex_state_lexical_bookend(state) = lex_state_closer(state);
     }
 
-    if ( lex_state_current_is_significant(lex_state) ) {
-      starting_index = starting_index ? starting_index : (lex_state_current(lex_state));
-      column = column ? column : (lex_state_column(lex_state));
-      line =   line   ? line   : (lex_state_line(lex_state));
+    if ( lex_state_current_is_significant(state) ) {
+      starting_index = starting_index ? starting_index : (lex_state_current(state));
+      column = column ? column : (lex_state_column(state));
+      line =   line   ? line   : (lex_state_line(state));
       string_push(word, c);
     }
 
     // update lex state for new line
     if ( char_is_line_end(c) ) {
-      lex_state_start_new_line(lex_state);
+      lex_state_start_new_line(state);
     }
 
     // check for termination of strings and other bookends that may contain spaces
-    if ( lex_state_is_open(lex_state) && starting_index < lex_state_current(lex_state) ) {
+    if ( lex_state_is_open(state) && starting_index < lex_state_current(state) ) {
       // regexes are special, because there can be characters after the ending '/'
       // so we have to switch the state
-      lex_state_transition_regex_if_needed(lex_state);
+      lex_state_transition_regex_if_needed(state);
 
-      if ( lex_state_will_close(lex_state) ) {
-        lex_state_close(lex_state);
+      if ( lex_state_will_close(state) ) {
+        lex_state_close(state);
         should_continue = false;
       }
-    } else if ( lex_state_current_is_significant(lex_state) && (
+    } else if ( lex_state_current_is_significant(state) && (
         char_is_line_end(c) || char_is_statement_end(c) ||         // line ends usually significant of a statement end
-        lex_state_end_of_word(lex_state) ||                        // end of normal word sequence
+        lex_state_end_of_word(state) ||                        // end of normal word sequence
         word_is_method_selector(word, c)  ||                       // '.'
         char_is_syntax(c) ||                                       // '(' ')' ','
-        char_is_colon(lex_state_next_char(lex_state)) ||           // : appearing after first char breaks the word
-        lex_state_will_end_word_by_dot(lex_state, word))       ) { // next char is a dot, and word is not a number
+        char_is_colon(lex_state_next_char(state)) ||           // : appearing after first char breaks the word
+        lex_state_will_end_word_by_dot(state, word))       ) { // next char is a dot, and word is not a number
       should_continue = false;
     }
 
     // move to next character
-    lex_state_advance(lex_state);
-    c = lex_state_current_char(lex_state);
+    lex_state_advance(state);
+    c = lex_state_current_char(state);
   }
 
   if ( string_empty(word) ) {

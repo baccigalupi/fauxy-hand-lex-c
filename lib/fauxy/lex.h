@@ -20,14 +20,15 @@ typedef enum {
 
 typedef List Tokens;
 
-typedef struct LexState {
+typedef struct SyntaxGeneratorState {
   String *code;
   int current;
   int line;
   int column;
-  List          *semantic_bookends;
   Bookend        lexical_bookend;
-} LexState;
+
+  List          *semantic_bookends;
+} SyntaxGeneratorState;
 
 #define char_is_line_end(C)         (C == '\n' || C == '\r')
 #define char_is_statement_end(C)    (C == ';')
@@ -84,7 +85,7 @@ typedef struct LexState {
                                       )
 
 #define lex_state_next_char(L)        (lex_state_char_at(L, lex_state_current(L) + 1))
-#define lex_state_advance(L)          ((++ lex_state_current(lex_state)), (++ lex_state_column(L)))
+#define lex_state_advance(L)          ((++ lex_state_current(L)), (++ lex_state_column(L)))
 #define lex_state_lexical_bookend(L)  ((L)->lexical_bookend)
 #define lex_state_is_open(L)          ((L)->lexical_bookend)
 
@@ -110,7 +111,7 @@ typedef struct LexState {
                                         ((L)->lexical_bookend = FX_CLOSING_NULL)                              \
                                     )
 
-#define lex_state_start_new_line(L)             ((++ lex_state_line(lex_state)), (lex_state_column(lex_state) = 0))
+#define lex_state_start_new_line(L)             ((++ lex_state_line(L)), (lex_state_column(L) = 0))
 #define lex_state_opening_block_comment(L)      (char_is_slash(lex_state_current_char(L)) && char_is_star(lex_state_next_char(L)))
 #define lex_state_opening_line_comment(L)       (char_is_slash(lex_state_current_char(L)) && char_is_slash(lex_state_next_char(L)))
 
@@ -150,7 +151,7 @@ typedef struct LexState {
 
 #define lex_state_transition_regex_if_needed(L) (lex_state_terminating_regex(L) && (lex_state_lexical_bookend(L) = FX_CLOSING_REGEX))
 
-#define lex_state_in_progress(L)                (lex_state_current(lex_state) < lex_state_length(lex_state))
+#define lex_state_in_progress(L)                (lex_state_current(L) < lex_state_length(L))
 
 #define lex_state_will_end_word_by_dot(L, S)    (                                                       \
                                                   char_is_method_selector(lex_state_next_char(L)) &&    \
@@ -169,10 +170,10 @@ typedef struct LexState {
 #define lexeme_length(L)       (string_length(lexeme_value(L)))
 
 
-List      *lex_text(char *code);
+List        *parse_text(char *code);
+SyntaxGeneratorState  *SyntaxGeneratorState_create(String *code);
 
-LexState  *LexState_create(String *code);
-Token     *lex_get_next_lexeme(LexState *lex_state);
+Token     *lex_get_next_lexeme(SyntaxGeneratorState *lex_state);
 Token     *token_from_lexeme(Token *lexeme);
 Boolean    lexed_word_is_number(char *word);
 
