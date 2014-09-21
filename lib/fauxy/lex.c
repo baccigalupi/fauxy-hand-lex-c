@@ -45,66 +45,66 @@ Token *token_from_lexeme(Token *lexeme) {
   char first_char = word[0];
 
   if ( char_is_line_end(first_char) ) {
-    object_type(lexeme) = FX_TOKEN_LINE_END;
-    string_free(object_value(lexeme));
+    token_type(lexeme) = FX_TOKEN_LINE_END;
+    string_free(token_value(lexeme));
   } else if ( char_is_statement_end(first_char) ) {
-    object_type(lexeme) = FX_TOKEN_STATEMENT_END;
-    string_free(object_value(lexeme));
+    token_type(lexeme) = FX_TOKEN_STATEMENT_END;
+    string_free(token_value(lexeme));
   } else if ( char_is_method_selector(first_char) ) {
-    object_type(lexeme) = FX_TOKEN_ATTRIBUTE_SELECTOR;
-    string_free(object_value(lexeme));
+    token_type(lexeme) = FX_TOKEN_ATTRIBUTE_SELECTOR;
+    string_free(token_value(lexeme));
   } else if ( char_opens_group(first_char) ) {
-    object_type(lexeme) = FX_TOKEN_GROUP_START;
-    string_free(object_value(lexeme));
+    token_type(lexeme) = FX_TOKEN_GROUP_START;
+    string_free(token_value(lexeme));
   } else if ( char_closes_group(first_char) ) {
-    object_type(lexeme) = FX_TOKEN_GROUP_END;
-    string_free(object_value(lexeme));
+    token_type(lexeme) = FX_TOKEN_GROUP_END;
+    string_free(token_value(lexeme));
   } else if ( char_is_separator(first_char) ) {
-    object_type(lexeme) = FX_TOKEN_COMMA;
-    string_free(object_value(lexeme));
+    token_type(lexeme) = FX_TOKEN_COMMA;
+    string_free(token_value(lexeme));
   } else if ( char_opens_block(first_char) ) {
-    object_type(lexeme) = FX_TOKEN_BLOCK_START;
-    string_free(object_value(lexeme));
+    token_type(lexeme) = FX_TOKEN_BLOCK_START;
+    string_free(token_value(lexeme));
   } else if ( char_closes_block(first_char) ) {
-    object_type(lexeme) = FX_TOKEN_BLOCK_END;
-    string_free(object_value(lexeme));
+    token_type(lexeme) = FX_TOKEN_BLOCK_END;
+    string_free(token_value(lexeme));
   } else if ( char_is_setter(first_char) && lexeme_length(lexeme) == 1 ) {
-    object_type(lexeme) = FX_TOKEN_LOCAL_SETTER;
-    string_free(object_value(lexeme));
+    token_type(lexeme) = FX_TOKEN_LOCAL_SETTER;
+    string_free(token_value(lexeme));
   } else if ( char_is_colon(first_char) && lexeme_length(lexeme) == 1 ) {
-    object_type(lexeme) = FX_TOKEN_ATTRIBUTE_SETTER;
-    string_free(object_value(lexeme));
+    token_type(lexeme) = FX_TOKEN_ATTRIBUTE_SETTER;
+    string_free(token_value(lexeme));
   } else if ( char_is_deferred_arg(first_char) && lexeme_length(lexeme) == 1 ) {
-    object_type(lexeme) = FX_TOKEN_DEFERRED_ARGUMENT;
-    string_free(object_value(lexeme));
+    token_type(lexeme) = FX_TOKEN_DEFERRED_ARGUMENT;
+    string_free(token_value(lexeme));
   } else if ( word_is_block_declaration(word) ) {
-    object_type(lexeme) = FX_TOKEN_BLOCK_DECLARATION;
-    string_free(object_value(lexeme));
+    token_type(lexeme) = FX_TOKEN_BLOCK_DECLARATION;
+    string_free(token_value(lexeme));
   } else if ( char_is_regex_bookend(first_char) ) {
-    object_type(lexeme) = FX_TOKEN_REGEX;
+    token_type(lexeme) = FX_TOKEN_REGEX;
   } else if ( char_is_string_bookend(first_char) ) {
-    object_type(lexeme) = FX_TOKEN_STRING;
+    token_type(lexeme) = FX_TOKEN_STRING;
     word[lexeme_length(lexeme) - 1] = '\0'; // shortening string contents to remove the quotation marks
     value = String_create((word+1));
     check(value, "token string value is NULL");
-    string_free(object_value(lexeme));
-    object_value(lexeme) = value;
+    string_free(token_value(lexeme));
+    token_value(lexeme) = value;
   } else if ( lexed_word_is_number(word) ) {
-    object_type(lexeme) = FX_TOKEN_NUMBER;
+    token_type(lexeme) = FX_TOKEN_NUMBER;
     value = Number_create(word);
     check(value, "token number is NULL");
-    string_free(object_value(lexeme));
-    object_value(lexeme) = value;
+    string_free(token_value(lexeme));
+    token_value(lexeme) = value;
   } else if ( char_is_capitalized(first_char) ) {
-    object_type(lexeme) = FX_TOKEN_GLOBAL_ID;
+    token_type(lexeme) = FX_TOKEN_GLOBAL_ID;
   } else if ( char_is_colon(first_char) ) {
-    object_type(lexeme) = FX_TOKEN_ATOM;
+    token_type(lexeme) = FX_TOKEN_ATOM;
     value = String_create((word+1));
     check(value, "token string value is NULL");
-    string_free(object_value(lexeme));
-    object_value(lexeme) = value;
+    string_free(token_value(lexeme));
+    token_value(lexeme) = value;
   } else {
-    object_type(lexeme) = FX_TOKEN_ID;
+    token_type(lexeme) = FX_TOKEN_ID;
   }
 
   return lexeme;

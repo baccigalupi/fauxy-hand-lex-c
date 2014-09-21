@@ -7,41 +7,37 @@
 
 #include "../lib/spec.h"
 
-Token *get_next_token(SyntaxGeneratorState *state) {
-  Token *lexeme = lex_get_next_lexeme(state);
-  if (lexeme) {
-    return token_from_lexeme(lexeme);
-  } else {
-    return NULL;
+Token *get_token_from_list(Tokens *tokens, int position) {
+  check(tokens, "token not built by lex");
+
+  Node *node;
+  int i = 0;
+  list_each(tokens, node) {
+    if (i == position) {
+      break;
+    }
+    i++;
   }
+
+  check(node, "node not found");
+  return node_value(node);
+error:
+  return NULL;
 }
 
-#define lex_test_setup(C)   String *code = String_create(C);                                  \
-                            SyntaxGeneratorState *state = SyntaxGeneratorState_create(code);  \
-                            Token *token = get_next_token(state);                             \
-                            check(token, "no token")
-
-#define lex_test_free()     ((string_free(code)), (pfree(state)), (token_free(token)))
-
-#define lex_test_get_next_token()     token_free(token);                                        \
-                                      token = get_next_token(state);                            \
-                                      check(token, "no token")
-
-#define lex_test_advance_n_tokens(N)  for(int i = 0; i < N; i++) { lex_test_get_next_token(); }
-
-
 char *test_float() {
+  Tokens *tokens = parse_text("1.324");
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
+
   spec_describe("Lexing a float with no padding");
-  lex_test_setup("1.324");
 
   assert_equal(object_type(token), FX_TOKEN_NUMBER,     "token type");
   assert_equal(token_number_value(token), (FLOAT)1.324, "token value");
   assert_equal(token_line(token), 1,                    "token line");
   assert_equal(token_column(token), 1,                  "token column");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -51,17 +47,18 @@ error:
 char *test_float_with_padding() {
   spec_describe("Lexing a float with padding");
 
-  lex_test_setup("    1.324   ");
-  check(token, "no token");
+  Tokens *tokens = parse_text("    1.324   ");
+  assert_equal(list_length(tokens), 1, "lex created wrong number of tokens");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_NUMBER, "token type");
   assert_equal(token_number_value(token), (FLOAT)1.324, "token value");
   assert_equal(token_line(token), 1, "token line");
   assert_equal(token_column(token), 5, "token column");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -70,41 +67,26 @@ error:
 
 char *test_two_floats_with_padding() {
   spec_describe("Lexing two floats with padding");
-  lex_test_setup("    1.324   4.0  ");
+  Tokens *tokens = parse_text("    1.324   4.0  ");
+  assert_equal(list_length(tokens), 2, "tokens length");
 
-  assert_equal(token_type(token), FX_TOKEN_NUMBER, "token type");
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
+
+  assert_equal(object_type(token), FX_TOKEN_NUMBER, "token type");
   assert_equal(token_number_value(token), (FLOAT)1.324, "token value");
   assert_equal(token_line(token), 1, "token line");
   assert_equal(token_column(token), 5, "token column");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 1);
+  check(token, "token was not attached to node");
 
-  assert_equal(token_type(token), FX_TOKEN_NUMBER, "second token type");
+  assert_equal(object_type(token), FX_TOKEN_NUMBER, "second token type");
   assert_equal(token_number_value(token), (FLOAT)4.0, "second token value");
   assert_equal(token_line(token), 1, "second token line");
   assert_equal(token_column(token), 13, "second token column");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
-
-  return NULL;
-error:
-  return "failed";
-}
-
-char *test_integer() {
-  spec_describe("Lexing interger");
-  lex_test_setup("314");
-
-  check(token, "no token");
-
-  assert_equal(object_type(token), FX_TOKEN_NUMBER, "token type");
-  assert_equal(token_number_value(token), (INT)314, "token value");
-
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -113,18 +95,18 @@ error:
 
 char *test_line_end() {
   spec_describe("Lexing line end with padding");
+  Tokens *tokens = parse_text(" \n ");
+  assert_equal(list_length(tokens), 1, "tokens_length");
 
-  lex_test_setup(" \n ");
-  check(token, "no token");
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
-  assert_equal(token_type(token),  FX_TOKEN_LINE_END, "token type");
-  assert_equal(token_value(token), NULL, "token value");
-  assert_equal(token_line(token),   1, "token line");
+  assert_equal(object_type(token), FX_TOKEN_LINE_END, "token type");
+  assert_equal(object_value(token), NULL, "token value");
+  assert_equal(token_line(token), 1, "token line");
   assert_equal(token_column(token), 2, "token column");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -133,23 +115,44 @@ error:
 
 char *test_line_end_with_float() {
   spec_describe("Lexing line end with float and padding");
-  lex_test_setup(" \n   3.14");
+  Tokens *tokens = parse_text(" \n   3.14");
+  assert_equal(list_length(tokens), 2, "tokens length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_LINE_END, "token type for line end");
   assert_equal(object_value(token), NULL, "token value line end");
   assert_equal(token_line(token), 1, "token line for line end");
   assert_equal(token_column(token), 2, "token column for line end");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 1);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_NUMBER, "token type for number");
   assert_equal(token_number_value(token), (FLOAT)3.14, "token value for number");
   assert_equal(token_line(token), 2, "token line for number");
   assert_equal(token_column(token), 4, "token column for number");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
+  token_list_free(tokens);
 
-  lex_test_free();
+  return NULL;
+error:
+  return "failed";
+}
+
+char *test_integer() {
+  spec_describe("Lexing interger");
+  Tokens *tokens = parse_text("314");
+  assert_equal(list_length(tokens), 1, "tokens length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
+
+  assert_equal(object_type(token), FX_TOKEN_NUMBER, "token type");
+  assert_equal(token_number_value(token), (INT)314, "token value");
+
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -159,16 +162,18 @@ error:
 char *test_single_quoted_string_no_space() {
   spec_describe("Lexing single simple quoted strings");
 
-  lex_test_setup("'hello'");
+  Tokens *tokens = parse_text("'hello'");
+  assert_equal(list_length(tokens), 1, "list length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_STRING, "token type");
   assert_strings_equal(token_string_value(token), "hello",  "token value");
   assert_equal(token_line(token), 1, "token line");
   assert_equal(token_column(token), 1, "token column");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -178,16 +183,18 @@ error:
 char *test_double_quoted_string_no_space() {
   spec_describe("Lexing double quoted basic string");
 
-  lex_test_setup("\"hello\"");
+  Tokens *tokens = parse_text("\"hello\"");
+  assert_equal(list_length(tokens), 1, "tokens length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_STRING, "token type");
   assert_strings_equal(token_string_value(token), "hello",  "token value");
   assert_equal(token_line(token), 1, "token line set incorrectly");
   assert_equal(token_column(token), 1, "token column set incorrectly");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -197,16 +204,19 @@ error:
 char *test_single_quoted_string_with_space() {
   spec_describe("Lexing single quoted string containing space, padded");
 
-  lex_test_setup(" 'hello world' ");
+  Tokens *tokens = parse_text(" 'hello world' ");
+
+  assert_equal(list_length(tokens), 1, "tokens length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_STRING, "token type");
   assert_strings_equal(token_string_value(token), "hello world",  "token value");
   assert_equal(token_line(token), 1, "token line");
   assert_equal(token_column(token), 2, "token column");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -216,16 +226,18 @@ error:
 char *test_double_quoted_string_with_space() {
   spec_describe("Lexing double quoted string containing space, padded");
 
-  lex_test_setup(" \"hello world\" ");
+  Tokens *tokens = parse_text(" \"hello world\" ");
+  assert_equal(list_length(tokens), 1, "tokens length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_STRING, "token type");
   assert_strings_equal(token_string_value(token), "hello world",  "token value");
   assert_equal(token_line(token), 1, "token line");
   assert_equal(token_column(token), 2, "token column");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -235,23 +247,26 @@ error:
 char *test_strings_with_line_break() {
   spec_describe("Multiple string types, one containing line break");
 
-  lex_test_setup(" \"hello\nworld\" 'wha?'");
+  Tokens *tokens = parse_text(" \"hello\nworld\" 'wha?'");
+  assert_equal(list_length(tokens), 2, "tokens length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_STRING, "token type");
   assert_strings_equal(token_string_value(token), "hello\nworld",  "token value");
   assert_equal(token_line(token), 1, "token line set incorrectly");
   assert_equal(token_column(token), 2, "token column set incorrectly");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 1);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_STRING, "token type");
   assert_strings_equal(token_string_value(token), "wha?",  "token value");
   assert_equal(token_line(token), 2, "token line");
   assert_equal(token_column(token), 8, "token column");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -260,37 +275,38 @@ error:
 
 char *test_block_comment() {
   spec_describe("Lexing block comments");
+  Tokens *tokens = parse_text(" /* hello\ncomment */ ");
 
-  lex_test_setup(" /* hello\ncomment */ ");
+  assert_equal(list_length(tokens), 0, "tokens length");
 
-  assert_equal(token, NULL, "right number of tokens");
+  token_list_free(tokens);
 
-  lex_test_free();
-
-error:
   return NULL;
 }
 
 char *test_block_comment_affect_line() {
   spec_describe("Lexing block comment followed by float");
 
-  lex_test_setup("/* hello\ncomment */\n 3.14");
+  Tokens *tokens = parse_text("/* hello\ncomment */\n 3.14");
+  assert_equal(list_length(tokens), 2, "tokens length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_LINE_END, "line end token type");
   assert_equal(object_value(token), NULL, "token value");
   assert_equal(token_line(token), 2, "token line");
   assert_equal(token_column(token), 11, "token column");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 1);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_NUMBER,    "number token type");
   assert_equal(token_number_value(token), (FLOAT)3.14, "token value");
   assert_equal(token_line(token), 3,                   "token line");
   assert_equal(token_column(token), 2,                 "token column");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -300,45 +316,46 @@ error:
 char *test_line_comment() {
   spec_describe("Lexing line comment preceded by float");
 
-  lex_test_setup("3.14 // hello comment");
+  Tokens *tokens = parse_text("3.14 // hello comment");
 
-  assert_equal(!!token, !NULL, "produces one token");
+  assert_equal(list_length(tokens), 1, "tokens length");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
+  token_list_free(tokens);
 
-  lex_test_free();
-
-error:
   return NULL;
 }
 
 char *test_line_comment_affect_line() {
   spec_describe("Lexing int line comment and float on next line");
 
-  lex_test_setup("1 // hello comment\n 3.14");
+  Tokens *tokens = parse_text("1 // hello comment\n 3.14");
+  assert_equal(list_length(tokens), 3, "tokens length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_NUMBER,    "int token type");
   assert_equal(token_number_value(token), (INT)1,      "token value");
   assert_equal(token_line(token), 1,                   "token line");
   assert_equal(token_column(token), 1,                 "token column");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 1);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_LINE_END, "line end token type");
   assert_equal(object_value(token), NULL,             "token value");
   assert_equal(token_line(token), 1,                  "token line");
   assert_equal(token_column(token), 19,               "token column");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 2);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_NUMBER,    "float number type");
   assert_equal(token_number_value(token), (FLOAT)3.14, "token value");
   assert_equal(token_line(token), 2,                   "token line");
   assert_equal(token_column(token), 2,                 "token column");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -348,34 +365,40 @@ error:
 char *test_statement_end() {
   spec_describe("Lexing multiple statements seperated by semicolons");
 
-  lex_test_setup("'hello'; 1234; 3.14");
+  Tokens *tokens = parse_text("'hello'; 1234; 3.14");
+  assert_equal(list_length(tokens), 5, "tokens length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_STRING,           "single string token type");
   assert_strings_equal(token_string_value(token), "hello", "token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 1);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_STATEMENT_END,    "semicolon token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 2);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_NUMBER,    "int token type");
   assert_equal(token_number_value(token), (INT)1234,   "int token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 3);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_STATEMENT_END,    "semicolon token type");
   assert_equal(object_value(token), NULL, "semicolon token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 4);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_NUMBER,    "float number type");
   assert_equal(token_number_value(token), (FLOAT)3.14,   "float number value");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -385,14 +408,17 @@ error:
 char *test_regex() {
   spec_describe("Lexing regex with trailing modifier, padded");
 
-  lex_test_setup(" /[a-z]/i ");
+  Tokens *tokens = parse_text(" /[a-z]/i ");
+
+  assert_equal(list_length(tokens), 1, "tokens length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_REGEX, "token type");
   assert_equal(strcmp(token_string_value(token),"/[a-z]/i"), 0, "token value");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -402,14 +428,16 @@ error:
 char *test_regex_with_space() {
   spec_describe("Lexing regex containing white space and with trailing modifier, padded");
 
-  lex_test_setup(" /[a-z] [0-9]/i ");
+  Tokens *tokens = parse_text(" /[a-z] [0-9]/i ");
+  assert_equal(list_length(tokens), 1, "tokens length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_REGEX, "token type");
   assert_equal(strcmp(token_string_value(token),"/[a-z] [0-9]/i"), 0, "token value");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -419,14 +447,16 @@ error:
 char *test_basic_identifier() {
   spec_describe("Lexing padded identifier");
 
-  lex_test_setup(" gerbil ");
+  Tokens *tokens = parse_text(" gerbil ");
+  assert_equal(list_length(tokens), 1, "tokens length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_ID, "token type");
   assert_strings_equal(token_string_value(token),"gerbil", "token value");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -436,14 +466,16 @@ error:
 char *test_global_identifier() {
   spec_describe("Lexing global identifier with padding");
 
-  lex_test_setup(" Gerbil ");
+  Tokens *tokens = parse_text(" Gerbil ");
+  assert_equal(list_length(tokens), 1, "tokens length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_GLOBAL_ID, "token type");
   assert_strings_equal(token_string_value(token),"Gerbil", "lex did not build right value for type id");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -453,14 +485,16 @@ error:
 char *test_number_starting_with_minus_sign() {
   spec_describe("Lexing number starting with minus sign");
 
-  lex_test_setup(" -1.23");
+  Tokens *tokens = parse_text(" -1.23");
+  assert_equal(list_length(tokens), 1, "tokens length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_NUMBER, "token type");
   assert_equal(token_number_value(token), (FLOAT)(-1.23), "token value");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -470,14 +504,16 @@ error:
 char *test_exponential_numbers() {
   spec_describe("Lexing exponential numbers");
 
-  lex_test_setup(" 1E-8");
+  Tokens *tokens = parse_text(" 1E-8");
+  assert_equal(list_length(tokens), 1, "tokens length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_NUMBER, "token type");
   assert_equal(token_number_value(token), (FLOAT)(1E-8), "token value");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -487,14 +523,17 @@ error:
 char *test_ids_starting_as_numbers() {
   spec_describe("Lexing identifiers starting with numbers");
 
-  lex_test_setup(" 123foo");
+  Tokens *tokens = parse_text(" 123foo");
+
+  assert_equal(list_length(tokens), 1, "tokens length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_ID,  "token type");
   assert_strings_equal(token_string_value(token), "123foo", "token value");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -504,14 +543,17 @@ error:
 char *test_ids_with_hyphens_and_underscores() {
   spec_describe("Lexing ids with numbers hyphens and underscores");
 
-  lex_test_setup(" 123-foo_bar- ");
+  Tokens *tokens = parse_text(" 123-foo_bar- ");
+
+  assert_equal(list_length(tokens), 1, "tokens length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_ID,  "token type");
   assert_strings_equal(token_string_value(token), "123-foo_bar-", "token value");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -521,24 +563,28 @@ error:
 char *test_identifier_with_dot_method_call() {
   spec_describe("Lexing dot attribute selection");
 
-  lex_test_setup(" file.open ");
+  Tokens *tokens = parse_text(" file.open ");
+  assert_equal(list_length(tokens), 3, "token length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_ID, "id token type");
   assert_strings_equal(token_string_value(token), "file", "token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 1);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_ATTRIBUTE_SELECTOR, "dot attribute selector token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 2);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_ID, "id token type");
   assert_strings_equal(token_string_value(token), "open", "token value");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -548,26 +594,28 @@ error:
 char *test_identifier_with_dot_method_call_and_argument() {
   spec_describe("Lexing dot method calls with argument");
 
-  lex_test_setup(" file.open('w') ");
+  Tokens *tokens = parse_text(" file.open('w') ");
+  assert_equal(list_length(tokens), 6, "token length");
 
-  lex_test_advance_n_tokens(3);
+  Token *token = get_token_from_list(tokens, 3);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_GROUP_START, "group start token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 4);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_STRING, "string token type");
   assert_strings_equal(token_string_value(token), "w", "token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 5);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_GROUP_END, "group end token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -577,26 +625,28 @@ error:
 char *test_identifier_with_dot_method_call_and_arguments() {
   spec_describe("Lexing identifier with dot method call and arguments");
 
-  lex_test_setup(" gerbil.talk('squeak','bark') ");
+  Tokens *tokens = parse_text(" gerbil.talk('squeak','bark') ");
+  assert_equal(list_length(tokens), 8, "token length");
 
-  lex_test_advance_n_tokens(5);
+  Token *token = get_token_from_list(tokens, 5);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_COMMA, "comma token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 6);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_STRING, "string token type");
   assert_strings_equal(token_string_value(token), "bark", "token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 7);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_GROUP_END, "group end lex type");
   assert_equal(object_value(token), NULL, "lex value");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -606,19 +656,22 @@ error:
 char *test_identifier_with_dot_method_call_and_deferred_arg() {
   spec_describe("Lexing method call with deferred argument");
 
-  lex_test_setup(" gerbil.talk(_,'bark') ");
+  Tokens *tokens = parse_text(" gerbil.talk(_,'bark') ");
+  assert_equal(list_length(tokens), 8, "token length");
 
-  lex_test_advance_n_tokens(4);
+  Token *token = get_token_from_list(tokens, 4);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_DEFERRED_ARGUMENT, "deferred argument token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 5);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_COMMA, "comma token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -628,46 +681,55 @@ error:
 char *test_setting_local_variables() {
   spec_describe("Lexing setting of local variables");
 
-  lex_test_setup(" foo = 'bar' ");
+  Tokens *tokens = parse_text(" foo = 'bar' ");
+  assert_equal(list_length(tokens), 3, "token length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_ID, "id token type");
   assert_strings_equal(token_string_value(token), "foo", "token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 1);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_LOCAL_SETTER, "local setter token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  lex_test_get_next_token();
+
+  token = get_token_from_list(tokens, 2);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_STRING, "string token type");
   assert_strings_equal(token_string_value(token), "bar", "string token value");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
   return "failed";
 }
 
+
 char *test_ids_can_start_with_setter() {
   spec_describe("Lexing identifiers starts with identifier");
 
-  lex_test_setup(" foo =bar ");
+  Tokens *tokens = parse_text(" foo =bar ");
+  assert_equal(list_length(tokens), 2, "token_length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_ID, "id token type");
   assert_strings_equal(token_string_value(token), "foo", "token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 1);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_ID, "id token type starting with =");
   assert_strings_equal(token_string_value(token), "=bar", "token value");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -677,14 +739,16 @@ error:
 char *test_atom() {
   spec_describe("Lexing atoms");
 
-  lex_test_setup(" :bar ");
+  Tokens *tokens = parse_text(" :bar ");
+  assert_equal(list_length(tokens), 1, "token length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_ATOM, "token type");
   assert_strings_equal(token_string_value(token), "bar", "token value");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -694,24 +758,28 @@ error:
 char *test_attribute_assignment() {
   spec_describe("Lexing attribute assignment");
 
-  lex_test_setup(" foo: bar ");
+  Tokens *tokens = parse_text(" foo: bar ");
+  assert_equal(list_length(tokens), 3, "token length");
+
+  Token *token = get_token_from_list(tokens, 0);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_ID, "id token type");
   assert_strings_equal(token_string_value(token), "foo", "token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 1);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_ATTRIBUTE_SETTER, "attribute setter token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 2);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_ID, "id token identifier");
   assert_strings_equal(token_string_value(token), "bar", "token vaule");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -721,31 +789,35 @@ error:
 char *test_block_start_no_arguments() {
   spec_describe("Lexing block start with no arguments");
 
-  lex_test_setup(" list.each ->{ \n");
+  Tokens *tokens = parse_text(" list.each ->{ \n");
 
-  lex_test_advance_n_tokens(2);
+  assert_equal(list_length(tokens), 6, "token length");
+
+  Token *token = get_token_from_list(tokens, 2);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_ID, "identifier token type");
   assert_strings_equal(token_string_value(token), "each", "token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 3);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_BLOCK_DECLARATION, "block declaration token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 4);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_BLOCK_START, "block start token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 5);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_LINE_END, "line end token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -755,36 +827,41 @@ error:
 char *test_block_start_statement_and_end() {
   spec_describe("Lexing block start, statement and end, one line");
 
-  lex_test_setup(" list.each -> {puts 'gerbil'}");
+  Tokens *tokens = parse_text(" list.each -> {puts 'gerbil'}");
 
-  lex_test_advance_n_tokens(3);
+  assert_equal(list_length(tokens), 8, "token length");
+
+  Token *token = get_token_from_list(tokens, 3);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_BLOCK_DECLARATION, "block declaration token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 4);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_BLOCK_START, "block start token type");
   assert_equal(object_value(token), NULL, "block value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 5);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_ID, "identifier token type");
   assert_strings_equal(token_string_value(token), "puts", "token vauel");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 6);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_STRING, "string token type");
   assert_strings_equal(token_string_value(token), "gerbil", "token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 7);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_BLOCK_END, "block end token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  assert_equal(get_next_token(state), NULL, "right number of tokens");
-
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:
@@ -793,45 +870,53 @@ error:
 
 char *test_block_with_arguments() {
   spec_describe("Lexing block with arguments and multiple statements");
+  Tokens *tokens = parse_text(" object.each ->(key, value){puts key; puts value}");
 
-  lex_test_setup(" object.each ->(key, value){puts key; puts value}");
+  assert_equal(list_length(tokens), 16, "token length");
 
-  lex_test_advance_n_tokens(3);
+  Token *token = get_token_from_list(tokens, 3);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_BLOCK_DECLARATION, "block declaration token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 4);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_GROUP_START, "group start token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  lex_test_advance_n_tokens(2);
+  token = get_token_from_list(tokens, 6);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_COMMA, "comma token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  lex_test_advance_n_tokens(2);
+  token = get_token_from_list(tokens, 8);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_GROUP_END, "group end token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  lex_test_get_next_token();
+  token = get_token_from_list(tokens, 9);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_BLOCK_START, "block start token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  lex_test_advance_n_tokens(9);
+  token = get_token_from_list(tokens, 12);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_STATEMENT_END, "statement end token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  lex_test_advance_n_tokens(3);
+  token = get_token_from_list(tokens, 15);
+  check(token, "token was not attached to node");
 
   assert_equal(object_type(token), FX_TOKEN_BLOCK_END, "block end token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  lex_test_free();
+  token_list_free(tokens);
 
   return NULL;
 error:

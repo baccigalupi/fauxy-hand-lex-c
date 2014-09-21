@@ -7,14 +7,6 @@
 #include "../bricks/string.h"
 #include "../bricks/number.h"
 
-
-/*
-  Token is the node for lexing into a list,
-  and then for parsing into a syntax tree
-
-  Bit *value is the string or number associated with the token
-*/
-
 typedef enum {
   FX_NOT_A_TOKEN,               // NULL state for iffiness
   FX_TOKEN_LINE_END,            // "\n"
@@ -52,23 +44,11 @@ typedef struct Token {
   //   TODO: file_id
 } Token;
 
-
-#define token_has_value(T)      (                                       \
-                                  ((T)->type) == FX_TOKEN_NUMBER ||     \
-                                  ((T)->type) == FX_TOKEN_STRING ||     \
-                                  ((T)->type) == FX_TOKEN_GLOBAL_ID ||  \
-                                  ((T)->type) == FX_TOKEN_ID            \
-                                )
-
-#define token_get_value(T)      (                                                               \
-                                  ((T)->type) == FX_TOKEN_NUMBER ? (Number *)((T)->value) :     \
-                                  ((T)->type) == FX_TOKEN_STRING ||                             \
-                                    ((T)->type) == FX_TOKEN_GLOBAL_ID ||                        \
-                                    ((T)->type) == FX_TOKEN_ID ? (String *)((T)->value) : NULL  \
-                                )
-
 #define token_line(T)           ((T)->line)
 #define token_column(T)         ((T)->column)
+#define token_type(T)           ((T)->type)
+#define token_value(T)          ((T)->value)
+#define token_free(T)           ((token_value(T) && (string_free(token_value(T)))), (pfree(T)))
 
 Token *Token_create(String *value, int line, int column);
 
