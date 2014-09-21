@@ -18,21 +18,22 @@ Token *get_next_token(SyntaxGeneratorState *state) {
 
 #define lex_test_setup(C)   String *code = String_create(C);                                  \
                             SyntaxGeneratorState *state = SyntaxGeneratorState_create(code);  \
-                            Token *token = get_next_token(state);                             \
-                            check(token, "no token")
+                            Token *token = get_next_token(state)
 
-#define lex_test_free()     ((string_free(code)), (pfree(state)), (token_free(token)))
+#define lex_test_setup_and_check(C)   lex_test_setup(C); check(token, "no token")
+
+#define lex_test_free()     ((state && pfree(state)), (code && string_free(code)), (token && token_free(token)))
 
 #define lex_test_get_next_token()     token_free(token);                                        \
                                       token = get_next_token(state);                            \
-                                      check(token, "no token")
+                                      // check(token, "no token")
 
 #define lex_test_advance_n_tokens(N)  for(int i = 0; i < N; i++) { lex_test_get_next_token(); }
 
 
 char *test_float() {
   spec_describe("Lexing a float with no padding");
-  lex_test_setup("1.324");
+  lex_test_setup_and_check("1.324");
 
   assert_equal(object_type(token), FX_TOKEN_NUMBER,     "token type");
   assert_equal(token_number_value(token), (FLOAT)1.324, "token value");
@@ -51,7 +52,7 @@ error:
 char *test_float_with_padding() {
   spec_describe("Lexing a float with padding");
 
-  lex_test_setup("    1.324   ");
+  lex_test_setup_and_check("    1.324   ");
   check(token, "no token");
 
   assert_equal(object_type(token), FX_TOKEN_NUMBER, "token type");
@@ -70,7 +71,7 @@ error:
 
 char *test_two_floats_with_padding() {
   spec_describe("Lexing two floats with padding");
-  lex_test_setup("    1.324   4.0  ");
+  lex_test_setup_and_check("    1.324   4.0  ");
 
   assert_equal(token_type(token), FX_TOKEN_NUMBER, "token type");
   assert_equal(token_number_value(token), (FLOAT)1.324, "token value");
@@ -95,7 +96,7 @@ error:
 
 char *test_integer() {
   spec_describe("Lexing interger");
-  lex_test_setup("314");
+  lex_test_setup_and_check("314");
 
   check(token, "no token");
 
@@ -114,7 +115,7 @@ error:
 char *test_line_end() {
   spec_describe("Lexing line end with padding");
 
-  lex_test_setup(" \n ");
+  lex_test_setup_and_check(" \n ");
   check(token, "no token");
 
   assert_equal(token_type(token),  FX_TOKEN_LINE_END, "token type");
@@ -133,7 +134,7 @@ error:
 
 char *test_line_end_with_float() {
   spec_describe("Lexing line end with float and padding");
-  lex_test_setup(" \n   3.14");
+  lex_test_setup_and_check(" \n   3.14");
 
   assert_equal(object_type(token), FX_TOKEN_LINE_END, "token type for line end");
   assert_equal(object_value(token), NULL, "token value line end");
@@ -159,7 +160,7 @@ error:
 char *test_single_quoted_string_no_space() {
   spec_describe("Lexing single simple quoted strings");
 
-  lex_test_setup("'hello'");
+  lex_test_setup_and_check("'hello'");
 
   assert_equal(object_type(token), FX_TOKEN_STRING, "token type");
   assert_strings_equal(token_string_value(token), "hello",  "token value");
@@ -178,7 +179,7 @@ error:
 char *test_double_quoted_string_no_space() {
   spec_describe("Lexing double quoted basic string");
 
-  lex_test_setup("\"hello\"");
+  lex_test_setup_and_check("\"hello\"");
 
   assert_equal(object_type(token), FX_TOKEN_STRING, "token type");
   assert_strings_equal(token_string_value(token), "hello",  "token value");
@@ -197,7 +198,7 @@ error:
 char *test_single_quoted_string_with_space() {
   spec_describe("Lexing single quoted string containing space, padded");
 
-  lex_test_setup(" 'hello world' ");
+  lex_test_setup_and_check(" 'hello world' ");
 
   assert_equal(object_type(token), FX_TOKEN_STRING, "token type");
   assert_strings_equal(token_string_value(token), "hello world",  "token value");
@@ -216,7 +217,7 @@ error:
 char *test_double_quoted_string_with_space() {
   spec_describe("Lexing double quoted string containing space, padded");
 
-  lex_test_setup(" \"hello world\" ");
+  lex_test_setup_and_check(" \"hello world\" ");
 
   assert_equal(object_type(token), FX_TOKEN_STRING, "token type");
   assert_strings_equal(token_string_value(token), "hello world",  "token value");
@@ -235,7 +236,7 @@ error:
 char *test_strings_with_line_break() {
   spec_describe("Multiple string types, one containing line break");
 
-  lex_test_setup(" \"hello\nworld\" 'wha?'");
+  lex_test_setup_and_check(" \"hello\nworld\" 'wha?'");
 
   assert_equal(object_type(token), FX_TOKEN_STRING, "token type");
   assert_strings_equal(token_string_value(token), "hello\nworld",  "token value");
@@ -267,7 +268,6 @@ char *test_block_comment() {
 
   lex_test_free();
 
-error:
   return NULL;
 }
 
@@ -275,6 +275,7 @@ char *test_block_comment_affect_line() {
   spec_describe("Lexing block comment followed by float");
 
   lex_test_setup("/* hello\ncomment */\n 3.14");
+  lex_test_get_next_token();
 
   assert_equal(object_type(token), FX_TOKEN_LINE_END, "line end token type");
   assert_equal(object_value(token), NULL, "token value");
@@ -293,14 +294,12 @@ char *test_block_comment_affect_line() {
   lex_test_free();
 
   return NULL;
-error:
-  return "failed";
 }
 
 char *test_line_comment() {
   spec_describe("Lexing line comment preceded by float");
 
-  lex_test_setup("3.14 // hello comment");
+  lex_test_setup_and_check("3.14 // hello comment");
 
   assert_equal(!!token, !NULL, "produces one token");
 
@@ -315,14 +314,14 @@ error:
 char *test_line_comment_affect_line() {
   spec_describe("Lexing int line comment and float on next line");
 
-  lex_test_setup("1 // hello comment\n 3.14");
+  lex_test_setup_and_check("1 // hello comment\n 3.14");
 
   assert_equal(object_type(token), FX_TOKEN_NUMBER,    "int token type");
   assert_equal(token_number_value(token), (INT)1,      "token value");
   assert_equal(token_line(token), 1,                   "token line");
   assert_equal(token_column(token), 1,                 "token column");
 
-  lex_test_get_next_token();
+  lex_test_advance_n_tokens(2);
 
   assert_equal(object_type(token), FX_TOKEN_LINE_END, "line end token type");
   assert_equal(object_value(token), NULL,             "token value");
@@ -348,7 +347,7 @@ error:
 char *test_statement_end() {
   spec_describe("Lexing multiple statements seperated by semicolons");
 
-  lex_test_setup("'hello'; 1234; 3.14");
+  lex_test_setup_and_check("'hello'; 1234; 3.14");
 
   assert_equal(object_type(token), FX_TOKEN_STRING,           "single string token type");
   assert_strings_equal(token_string_value(token), "hello", "token value");
@@ -385,7 +384,7 @@ error:
 char *test_regex() {
   spec_describe("Lexing regex with trailing modifier, padded");
 
-  lex_test_setup(" /[a-z]/i ");
+  lex_test_setup_and_check(" /[a-z]/i ");
 
   assert_equal(object_type(token), FX_TOKEN_REGEX, "token type");
   assert_equal(strcmp(token_string_value(token),"/[a-z]/i"), 0, "token value");
@@ -402,7 +401,7 @@ error:
 char *test_regex_with_space() {
   spec_describe("Lexing regex containing white space and with trailing modifier, padded");
 
-  lex_test_setup(" /[a-z] [0-9]/i ");
+  lex_test_setup_and_check(" /[a-z] [0-9]/i ");
 
   assert_equal(object_type(token), FX_TOKEN_REGEX, "token type");
   assert_equal(strcmp(token_string_value(token),"/[a-z] [0-9]/i"), 0, "token value");
@@ -419,7 +418,7 @@ error:
 char *test_basic_identifier() {
   spec_describe("Lexing padded identifier");
 
-  lex_test_setup(" gerbil ");
+  lex_test_setup_and_check(" gerbil ");
 
   assert_equal(object_type(token), FX_TOKEN_ID, "token type");
   assert_strings_equal(token_string_value(token),"gerbil", "token value");
@@ -436,7 +435,7 @@ error:
 char *test_global_identifier() {
   spec_describe("Lexing global identifier with padding");
 
-  lex_test_setup(" Gerbil ");
+  lex_test_setup_and_check(" Gerbil ");
 
   assert_equal(object_type(token), FX_TOKEN_GLOBAL_ID, "token type");
   assert_strings_equal(token_string_value(token),"Gerbil", "lex did not build right value for type id");
@@ -453,7 +452,7 @@ error:
 char *test_number_starting_with_minus_sign() {
   spec_describe("Lexing number starting with minus sign");
 
-  lex_test_setup(" -1.23");
+  lex_test_setup_and_check(" -1.23");
 
   assert_equal(object_type(token), FX_TOKEN_NUMBER, "token type");
   assert_equal(token_number_value(token), (FLOAT)(-1.23), "token value");
@@ -470,7 +469,7 @@ error:
 char *test_exponential_numbers() {
   spec_describe("Lexing exponential numbers");
 
-  lex_test_setup(" 1E-8");
+  lex_test_setup_and_check(" 1E-8");
 
   assert_equal(object_type(token), FX_TOKEN_NUMBER, "token type");
   assert_equal(token_number_value(token), (FLOAT)(1E-8), "token value");
@@ -487,7 +486,7 @@ error:
 char *test_ids_starting_as_numbers() {
   spec_describe("Lexing identifiers starting with numbers");
 
-  lex_test_setup(" 123foo");
+  lex_test_setup_and_check(" 123foo");
 
   assert_equal(object_type(token), FX_TOKEN_ID,  "token type");
   assert_strings_equal(token_string_value(token), "123foo", "token value");
@@ -504,7 +503,7 @@ error:
 char *test_ids_with_hyphens_and_underscores() {
   spec_describe("Lexing ids with numbers hyphens and underscores");
 
-  lex_test_setup(" 123-foo_bar- ");
+  lex_test_setup_and_check(" 123-foo_bar- ");
 
   assert_equal(object_type(token), FX_TOKEN_ID,  "token type");
   assert_strings_equal(token_string_value(token), "123-foo_bar-", "token value");
@@ -521,7 +520,7 @@ error:
 char *test_identifier_with_dot_method_call() {
   spec_describe("Lexing dot attribute selection");
 
-  lex_test_setup(" file.open ");
+  lex_test_setup_and_check(" file.open ");
 
   assert_equal(object_type(token), FX_TOKEN_ID, "id token type");
   assert_strings_equal(token_string_value(token), "file", "token value");
@@ -548,7 +547,7 @@ error:
 char *test_identifier_with_dot_method_call_and_argument() {
   spec_describe("Lexing dot method calls with argument");
 
-  lex_test_setup(" file.open('w') ");
+  lex_test_setup_and_check(" file.open('w') ");
 
   lex_test_advance_n_tokens(3);
 
@@ -577,7 +576,7 @@ error:
 char *test_identifier_with_dot_method_call_and_arguments() {
   spec_describe("Lexing identifier with dot method call and arguments");
 
-  lex_test_setup(" gerbil.talk('squeak','bark') ");
+  lex_test_setup_and_check(" gerbil.talk('squeak','bark') ");
 
   lex_test_advance_n_tokens(5);
 
@@ -606,7 +605,7 @@ error:
 char *test_identifier_with_dot_method_call_and_deferred_arg() {
   spec_describe("Lexing method call with deferred argument");
 
-  lex_test_setup(" gerbil.talk(_,'bark') ");
+  lex_test_setup_and_check(" gerbil.talk(_,'bark') ");
 
   lex_test_advance_n_tokens(4);
 
@@ -628,7 +627,7 @@ error:
 char *test_setting_local_variables() {
   spec_describe("Lexing setting of local variables");
 
-  lex_test_setup(" foo = 'bar' ");
+  lex_test_setup_and_check(" foo = 'bar' ");
 
   assert_equal(object_type(token), FX_TOKEN_ID, "id token type");
   assert_strings_equal(token_string_value(token), "foo", "token value");
@@ -655,7 +654,7 @@ error:
 char *test_ids_can_start_with_setter() {
   spec_describe("Lexing identifiers starts with identifier");
 
-  lex_test_setup(" foo =bar ");
+  lex_test_setup_and_check(" foo =bar ");
 
   assert_equal(object_type(token), FX_TOKEN_ID, "id token type");
   assert_strings_equal(token_string_value(token), "foo", "token value");
@@ -677,7 +676,7 @@ error:
 char *test_atom() {
   spec_describe("Lexing atoms");
 
-  lex_test_setup(" :bar ");
+  lex_test_setup_and_check(" :bar ");
 
   assert_equal(object_type(token), FX_TOKEN_ATOM, "token type");
   assert_strings_equal(token_string_value(token), "bar", "token value");
@@ -694,7 +693,7 @@ error:
 char *test_attribute_assignment() {
   spec_describe("Lexing attribute assignment");
 
-  lex_test_setup(" foo: bar ");
+  lex_test_setup_and_check(" foo: bar ");
 
   assert_equal(object_type(token), FX_TOKEN_ID, "id token type");
   assert_strings_equal(token_string_value(token), "foo", "token value");
@@ -721,7 +720,7 @@ error:
 char *test_block_start_no_arguments() {
   spec_describe("Lexing block start with no arguments");
 
-  lex_test_setup(" list.each ->{ \n");
+  lex_test_setup_and_check(" list.each ->{ \n");
 
   lex_test_advance_n_tokens(2);
 
@@ -755,7 +754,7 @@ error:
 char *test_block_start_statement_and_end() {
   spec_describe("Lexing block start, statement and end, one line");
 
-  lex_test_setup(" list.each -> {puts 'gerbil'}");
+  lex_test_setup_and_check(" list.each -> {puts 'gerbil'}");
 
   lex_test_advance_n_tokens(3);
 
@@ -794,7 +793,7 @@ error:
 char *test_block_with_arguments() {
   spec_describe("Lexing block with arguments and multiple statements");
 
-  lex_test_setup(" object.each ->(key, value){puts key; puts value}");
+  lex_test_setup_and_check(" object.each ->(key, value){puts key; puts value}");
 
   lex_test_advance_n_tokens(3);
 
@@ -821,7 +820,7 @@ char *test_block_with_arguments() {
   assert_equal(object_type(token), FX_TOKEN_BLOCK_START, "block start token type");
   assert_equal(object_value(token), NULL, "token value");
 
-  lex_test_advance_n_tokens(9);
+  lex_test_advance_n_tokens(3);
 
   assert_equal(object_type(token), FX_TOKEN_STATEMENT_END, "statement end token type");
   assert_equal(object_value(token), NULL, "token value");
