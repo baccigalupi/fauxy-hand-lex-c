@@ -15,30 +15,6 @@ error:
   return NULL;
 }
 
-List *parse_text(char *str) {
-  List *list = List_create();
-  check_mem(list);
-
-  String   *code =      String_create(str);
-  SyntaxGeneratorState *state = SyntaxGeneratorState_create(code);
-
-  Token *lexeme = NULL;
-
-  while( lex_state_in_progress(state) ) {
-    lexeme = lex_get_next_lexeme(state);
-    if (lexeme) {
-      list_push(list, token_from_lexeme(lexeme));
-    }
-  }
-
-  string_free(code);
-  pfree(state);
-
-  return list;
-error:
-  return NULL;
-}
-
 Token *token_from_lexeme(Token *lexeme) {
   char *word = string_value(lexeme_value(lexeme));
   void *value = NULL;

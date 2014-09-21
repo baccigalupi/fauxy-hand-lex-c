@@ -170,21 +170,10 @@ typedef struct SyntaxGeneratorState {
 #define lexeme_length(L)       (string_length(lexeme_value(L)))
 
 
-List        *parse_text(char *code);
 SyntaxGeneratorState  *SyntaxGeneratorState_create(String *code);
 
 Token     *lex_get_next_lexeme(SyntaxGeneratorState *lex_state);
 Token     *token_from_lexeme(Token *lexeme);
 Boolean    lexed_word_is_number(char *word);
-
-void static inline token_list_free(List *list) {
-  Node *node;
-  Token *token;
-  list_each(list, node) {
-    token = node_value(node);
-    pfree( object_value(token) );
-  }
-  list_clear_and_destroy(list);
-}
 
 #endif
