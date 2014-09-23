@@ -48,7 +48,16 @@ typedef struct Token {
 #define token_column(T)         ((T)->column)
 #define token_type(T)           ((T)->type)
 #define token_value(T)          ((T)->value)
-#define token_free(T)           (T && ((token_value(T) && (string_free(token_value(T)))), (pfree(T))))
+
+#define token_free(T)           (                                               \
+                                  T && (                                        \
+                                    (                                           \
+                                      token_value(T) &&                         \
+                                      (string_free(token_value(T)))             \
+                                    ),                                          \
+                                    (pfree(T))                                  \
+                                  )                                             \
+                                )
 
 Token *Token_create(String *value, int line, int column);
 

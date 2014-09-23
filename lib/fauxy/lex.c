@@ -3,18 +3,6 @@
 #include "../bricks/error_handling.h"
 #include "../bricks/string.h"
 
-SyntaxGeneratorState *SyntaxGeneratorState_create(String *code) {
-  SyntaxGeneratorState *state = calloc(1, sizeof(SyntaxGeneratorState));
-  check_mem(state);
-  state->code = code;
-  state->line = 1;
-  state->column = 1;
-
-  return state;
-error:
-  return NULL;
-}
-
 Token *token_from_lexeme(Token *lexeme) {
   char *word = string_value(lexeme_value(lexeme));
   void *value = NULL;
@@ -88,7 +76,7 @@ error:
   return NULL;
 }
 
-Token *lex_get_next_lexeme(SyntaxGeneratorState *state) {
+Token *lex_get_next_lexeme(ParseState *state) {
   String *word = String_create("");
 
   int starting_index = 0; // used to track progress against comments

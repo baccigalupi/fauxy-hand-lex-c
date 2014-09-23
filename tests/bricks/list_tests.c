@@ -262,7 +262,7 @@ char *test_clear_and_destroy() {
   list_push(list, str_2);
   list_push(list, str_3);
 
-  list_clear_and_destroy(list); // just sees that it works without fail
+  list_r_free(list); // just sees that it works without fail
 
   return NULL;
 }

@@ -3,6 +3,9 @@
 
 #include "stack.h"
 
-void parse_text(char *text, Stack *stack);
+#define stack_add_statement(SK, SM)   SM = Statement_create();                 \
+                                      stack_push(SK, SM);
+
+void parse_text(ParseState *state, Stack *stack);
 
 #endif

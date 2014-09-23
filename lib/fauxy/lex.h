@@ -7,28 +7,7 @@
 #include "../bricks/node.h"
 #include "../bricks/list.h"
 #include "token.h"
-
-typedef enum {
-  FX_CLOSING_NULL,              // NULL state for iffiness
-  FX_CLOSING_SINGLE_QUOTE,
-  FX_CLOSING_DOUBLE_QUOTE,
-  FX_CLOSING_LINE_COMMENT,
-  FX_CLOSING_BLOCK_COMMENT,
-  FX_OPENING_REGEX,
-  FX_CLOSING_REGEX
-} Bookend;
-
-typedef List Tokens;
-
-typedef struct SyntaxGeneratorState {
-  String *code;
-  int current;
-  int line;
-  int column;
-  Bookend        lexical_bookend;
-
-  List          *semantic_bookends;
-} SyntaxGeneratorState;
+#include "parse_state.h"
 
 #define char_is_line_end(C)         (C == '\n' || C == '\r')
 #define char_is_statement_end(C)    (C == ';')
@@ -59,10 +38,10 @@ typedef struct SyntaxGeneratorState {
                                     )
 
 
-#define lex_state_current(L)          ((L)->current)
-#define lex_state_line(L)             ((L)->line)
-#define lex_state_column(L)           ((L)->column)
-#define lex_state_length(L)           (((L)->code)->length)
+#define lex_state_current(L)          parse_state_current(L)
+#define lex_state_line(L)             parse_state_line(L)
+#define lex_state_column(L)           parse_state_column(L)
+#define lex_state_length(L)           parse_state_length(L)
 
 #define lex_state_char_at(L, I)       (                                         \
                                         (I >= 0 && I < lex_state_length(L)) ?   \
@@ -170,9 +149,7 @@ typedef struct SyntaxGeneratorState {
 #define lexeme_length(L)       (string_length(lexeme_value(L)))
 
 
-SyntaxGeneratorState  *SyntaxGeneratorState_create(String *code);
-
-Token     *lex_get_next_lexeme(SyntaxGeneratorState *lex_state);
+Token     *lex_get_next_lexeme(ParseState *lex_state);
 Token     *token_from_lexeme(Token *lexeme);
 Boolean    lexed_word_is_number(char *word);
 

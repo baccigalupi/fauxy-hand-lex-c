@@ -7,7 +7,7 @@
 
 #include "../lib/spec.h"
 
-Token *get_next_token(SyntaxGeneratorState *state) {
+Token *get_next_token(ParseState *state) {
   Token *lexeme = lex_get_next_lexeme(state);
   if (lexeme) {
     return token_from_lexeme(lexeme);
@@ -17,7 +17,7 @@ Token *get_next_token(SyntaxGeneratorState *state) {
 }
 
 #define lex_test_setup(C)   String *code = String_create(C);                                  \
-                            SyntaxGeneratorState *state = SyntaxGeneratorState_create(code);  \
+                            ParseState *state = ParseState_create(code);  \
                             Token *token = get_next_token(state)
 
 #define lex_test_setup_and_check(C)   lex_test_setup(C); check(token, "no token")
@@ -25,8 +25,7 @@ Token *get_next_token(SyntaxGeneratorState *state) {
 #define lex_test_free()     ((state && pfree(state)), (code && string_free(code)), (token && token_free(token)))
 
 #define lex_test_get_next_token()     token_free(token);                                        \
-                                      token = get_next_token(state);                            \
-                                      // check(token, "no token")
+                                      token = get_next_token(state);                            
 
 #define lex_test_advance_n_tokens(N)  for(int i = 0; i < N; i++) { lex_test_get_next_token(); }
 

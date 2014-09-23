@@ -13,4 +13,6 @@ typedef struct Exception {
 #define exception_code(E)       ((E)->code)
 #define exception_free(E)       (pfree(E))
 
+Exception *Exception_create(ExceptionCode code);
+
 #endif

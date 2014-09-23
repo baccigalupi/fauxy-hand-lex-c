@@ -167,8 +167,8 @@ error:
   return;
 }
 
-void  list_clear_and_destroy(List *list) {
-  check(list, "list in list_clear_and_destroy is NULL");
+void  list_r_free(List *list) {
+  check(list, "list in list_r_free is NULL");
 
   Node *node = list_node_first(list);
   if (node != NULL) {
