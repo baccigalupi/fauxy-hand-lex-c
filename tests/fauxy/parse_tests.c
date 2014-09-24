@@ -17,7 +17,7 @@
 Token *get_statement_token_at(Statement *statement, int index) {
   Node *node;
   int i = 0;
-  list_each(statement, node) {
+  statement_each(statement, node) {
     if (i == index) {
       return node_value(node);
     }

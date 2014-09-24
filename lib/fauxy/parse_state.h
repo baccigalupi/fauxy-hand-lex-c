@@ -19,8 +19,6 @@ typedef struct ParseState {
   int line;
   int column;
   Bookend        lexical_bookend;
-
-  List *statement_buffer;
 } ParseState;
 
 #define parse_state_current(P)          ((P)->current)
@@ -46,6 +44,6 @@ typedef struct ParseState {
                                               )
 
 ParseState  *ParseState_create(String *code);
-void         parse_state_load_buffer(ParseState *state);
+// void         parse_state_load_buffer(ParseState *state);
 
 #endif
