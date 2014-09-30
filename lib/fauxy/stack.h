@@ -2,12 +2,12 @@
 #define __fauxy_stack
 
 #include "../bricks/array.h"
-#include "./statements.h"
+#include "./statement.h"
 #include "./exception.h"
 #include "./lex.h"
 
 typedef struct Stack {
-  Statements *statements;
+  Statement *statements;
   Exception  *exception;
 } Stack;
 

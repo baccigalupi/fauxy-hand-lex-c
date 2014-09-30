@@ -6,7 +6,7 @@ Stack *Stack_create() {
   Stack *stack = calloc(1, sizeof(Stack));
   check_mem(stack);
 
-  Statements *statements = Statements_create();
+  Statement *statements = Statement_create(FX_ST_STATEMENTS);
   check(statements, "memory error allocating stack statements");
   stack_statements(stack) = statements;
   stack_exception(stack) = NULL;
