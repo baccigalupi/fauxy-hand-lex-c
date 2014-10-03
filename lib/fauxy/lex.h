@@ -148,8 +148,10 @@
 #define lexeme_value(L)        ((String *)object_value(L))
 #define lexeme_length(L)       (string_length(lexeme_value(L)))
 
+#define lex_get_next_token(S)  (token_from_lexeme(lex_get_next_non_null_lexeme(S)))
 
 Token     *lex_get_next_lexeme(ParseState *lex_state);
+Token     *lex_get_next_non_null_lexeme(ParseState *state);
 Token     *token_from_lexeme(Token *lexeme);
 Boolean    lexed_word_is_number(char *word);
 

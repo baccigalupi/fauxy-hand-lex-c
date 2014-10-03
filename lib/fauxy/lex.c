@@ -4,6 +4,8 @@
 #include "../bricks/string.h"
 
 Token *token_from_lexeme(Token *lexeme) {
+  if (lexeme == NULL) { return NULL; }
+
   char *word = string_value(lexeme_value(lexeme));
   void *value = NULL;
   char first_char = word[0];
@@ -60,7 +62,7 @@ Token *token_from_lexeme(Token *lexeme) {
     string_free(token_value(lexeme));
     token_value(lexeme) = value;
   } else if ( char_is_capitalized(first_char) ) {
-    token_type(lexeme) = FX_TOKEN_GLOBAL_ID;
+    token_type(lexeme) = FX_TOKEN_CLASS_ID;
   } else if ( char_is_colon(first_char) ) {
     token_type(lexeme) = FX_TOKEN_ATOM;
     value = String_create((word+1));
@@ -74,6 +76,16 @@ Token *token_from_lexeme(Token *lexeme) {
   return lexeme;
 error:
   return NULL;
+}
+
+inline Token *lex_get_next_non_null_lexeme(ParseState *state) {
+  Token *token = NULL;
+
+  while (lex_state_in_progress(state) && token == NULL) {
+    token = lex_get_next_lexeme(state);
+  }
+
+  return token;
 }
 
 Token *lex_get_next_lexeme(ParseState *state) {

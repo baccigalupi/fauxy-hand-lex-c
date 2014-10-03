@@ -18,14 +18,14 @@ Token *get_next_token(ParseState *state) {
 
 #define lex_test_setup(C)   String *code = String_create(C);                                  \
                             ParseState *state = ParseState_create(code);  \
-                            Token *token = get_next_token(state)
+                            Token *token = lex_get_next_token(state)
 
 #define lex_test_setup_and_check(C)   lex_test_setup(C); check(token, "no token")
 
 #define lex_test_free()     ((state && pfree(state)), (code && string_free(code)), (token && token_free(token)))
 
 #define lex_test_get_next_token()     token_free(token);                                        \
-                                      token = get_next_token(state);                            
+                                      token = get_next_token(state);
 
 #define lex_test_advance_n_tokens(N)  for(int i = 0; i < N; i++) { lex_test_get_next_token(); }
 
@@ -274,7 +274,6 @@ char *test_block_comment_affect_line() {
   spec_describe("Lexing block comment followed by float");
 
   lex_test_setup("/* hello\ncomment */\n 3.14");
-  lex_test_get_next_token();
 
   assert_equal(object_type(token), FX_TOKEN_LINE_END, "line end token type");
   assert_equal(object_value(token), NULL, "token value");
@@ -436,7 +435,7 @@ char *test_global_identifier() {
 
   lex_test_setup_and_check(" Gerbil ");
 
-  assert_equal(object_type(token), FX_TOKEN_GLOBAL_ID, "token type");
+  assert_equal(object_type(token), FX_TOKEN_CLASS_ID, "token type");
   assert_strings_equal(token_string_value(token),"Gerbil", "lex did not build right value for type id");
 
   assert_equal(get_next_token(state), NULL, "right number of tokens");
