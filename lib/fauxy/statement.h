@@ -11,7 +11,7 @@ typedef enum {
   FX_ST_LITERAL = STATEMENT_TYPE_LIMIT,
   FX_ST_ID,
   FX_ST_CLASS,
-  FX_ST_BLOCK = NESTED_STATEMENT_TYPE_LIMIT,
+  FX_ST_BLOCK   = NESTED_STATEMENT_TYPE_LIMIT,
   FX_ST_LIST,
   FX_ST_ATTR_ASSIGN,
   FX_ST_LOCAL_ASSIGN,
@@ -30,7 +30,7 @@ typedef struct Statement {
 #define statement_type(S)       ((S)->type)
 #define statement_value(S)      ((S)->value)
 
-#define statement_type_is_list(T)   ( (int)(T) >= (int)NESTED_STATEMENT_TYPE_LIMIT )
+#define statement_type_is_list(T)   ((T) >= NESTED_STATEMENT_TYPE_LIMIT)
 #define statement_value_is_list(S)  (statement_type_is_list(statement_type(S)))
 #define statement_value_is_token(S) !(statement_value_is_list(S))
 
@@ -40,8 +40,10 @@ typedef struct Statement {
 #define statement_push(S, V)    (                                               \
                                   statement_value_is_list(S) ?                  \
                                   (list_push(statement_value(S), V)) :          \
-                                  (statement_value(S)=V)                       \
+                                  (statement_value(S)=V)                        \
                                 )
+
+#define statement_is_token(S)   (statement_type(S) < STATEMENT_TYPE_LIMIT)
 
 Statement *Statement_create(StatementType type);
 void       statement_free(Statement *statement);

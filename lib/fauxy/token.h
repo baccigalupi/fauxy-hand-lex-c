@@ -9,18 +9,21 @@
 
 typedef enum {
   FX_NOT_A_TOKEN,               // NULL state for iffiness
-  FX_TOKEN_LINE_END,            // "\n"
-  FX_TOKEN_STATEMENT_END,       // ";"
 
   FX_TOKEN_NUMBER,
   FX_TOKEN_STRING,
   FX_TOKEN_REGEX,
+  FX_TOKEN_ATOM,                // starts with :
+
+  FX_TOKEN_CLASS_ID,            // starts with uppercase
+  FX_TOKEN_ID,                  // method calls and variable names
+
+  FX_TOKEN_LINE_END,            // "\n"
+  FX_TOKEN_STATEMENT_END,       // ";"
 
   FX_TOKEN_ATTRIBUTE_SELECTOR,  // "."
   FX_TOKEN_GROUP_START,         // "("
-  FX_TOKEN_ARGUMENTS_START,
   FX_TOKEN_GROUP_END,           // ")"
-  FX_TOKEN_ARGUMENTS_END,
   FX_TOKEN_COMMA,               // ","
   FX_TOKEN_LOCAL_SETTER,        // "="
   FX_TOKEN_ATTRIBUTE_SETTER,    // ":"
@@ -28,11 +31,8 @@ typedef enum {
   FX_TOKEN_BLOCK_END,           // "}"
   FX_TOKEN_DEFERRED_ARGUMENT,   // "_"
 
-  FX_TOKEN_BLOCK_DECLARATION,   // "->"
+  FX_TOKEN_BLOCK_DECLARATION    // "->"
 
-  FX_TOKEN_GLOBAL_ID,           // starts with uppercase
-  FX_TOKEN_ID,                  // method calls and variable names
-  FX_TOKEN_ATOM                 // starts with :
 } TokenType;
 
 

@@ -16,15 +16,3 @@ ParseState *ParseState_create(String *code) {
 error:
   return NULL;
 }
-
-// void parse_state_load_buffer(ParseState *state) {
-//   Token *token = NULL;
-//
-//   while( lex_state_in_progress(state) && parse_state_seeking_statement_end(state) ) {
-//     token = lex_get_next_lexeme(state);
-//     if (token != NULL) {
-//       token = token_from_lexeme(token);
-//       parse_state_buffer_push(state, token);
-//     }
-//   }
-// }

@@ -2,6 +2,7 @@
 #define __fauxy_parse_state
 
 #include "../bricks/list.h"
+#include "token.h"
 
 typedef enum {
   FX_CLOSING_NULL,              // NULL state for iffiness
@@ -18,32 +19,34 @@ typedef struct ParseState {
   int current;
   int line;
   int column;
-  Bookend        lexical_bookend;
+  Bookend  lexical_bookend;
+  Token    *current_token;
+  Token    *next_token;
 } ParseState;
 
 #define parse_state_current(P)          ((P)->current)
 #define parse_state_line(P)             ((P)->line)
 #define parse_state_column(P)           ((P)->column)
 #define parse_state_length(P)           (((P)->code)->length)
+#define parse_state_current_token(P)    ((P)->current_token)
+#define parse_state_next_token(P)       ((P)->next_token)
 
-#define parse_state_buffer(P)           ((P)->statement_buffer)
-#define parse_state_buffer_length(P)    (list_length(parse_state_buffer(P)))
-#define parse_state_buffer_push(S, V)   (list_push(parse_state_buffer(S), V))
-#define parse_state_buffer_unshift(S)   (list_unshift(parse_state_buffer(S)))
+#define parse_state_is_new(P)           (                                               \
+                                          (lex_state_in_progress(state)) &&             \
+                                          (parse_state_current_token(state) == NULL) && \
+                                          (parse_state_next_token(state) == NULL)       \
+                                        )
 
-#define parse_state_seeking_statement_end(P)  (                                                                                               \
-                                                parse_state_buffer_length(state) > 1 ?                                                        \
-                                                  (                                                                                           \
-                                                    (list_last(parse_state_buffer(state)) != NULL) &&                                         \
-                                                    (                                                                                         \
-                                                      (token_type((Token *)list_last(parse_state_buffer(state))) == FX_TOKEN_LINE_END) ||     \
-                                                      (token_type((Token *)list_last(parse_state_buffer(state))) == FX_TOKEN_STATEMENT_END)   \
-                                                    )                                                                                         \
-                                                  )                                                                                           \
-                                                  : true                                                                                      \
-                                              )
+#define parse_state_load(P)             (                                                                       \
+                                          (parse_state_is_new(P)) ? (                                       \
+                                            (parse_state_current_token(P) = lex_get_next_token(P)),    \
+                                            (parse_state_next_token(P) = lex_get_next_token(P))        \
+                                          ) : (                                                                 \
+                                            (parse_state_current_token(P) = parse_state_next_token(P)), \
+                                            (parse_state_next_token(P) = lex_get_next_token(P))         \
+                                          )                                                                     \
+                                        )
 
-ParseState  *ParseState_create(String *code);
-// void         parse_state_load_buffer(ParseState *state);
+ParseState *ParseState_create(String *code);
 
 #endif

@@ -59,11 +59,45 @@ char *test_list_statement() {
   return NULL;
 }
 
+char *test_nested_statement() {
+  spec_describe("nested statements, memory freeing");
+
+  // block[
+  //   list[identifier], statements[
+  //     method_call[identifier, identifier]
+  //   ]
+  // ]]
+
+  Statement *block = Statement_create(FX_ST_BLOCK);
+  Statement *list = Statement_create(FX_ST_LIST);
+  Statement *statements = Statement_create(FX_ST_STATEMENTS);
+  Statement *method_call = Statement_create(FX_ST_METHOD_CALL);
+  Token *identifier = Token_create(String_create("my_id"), 1, 1);
+  token_type(identifier) = FX_TOKEN_ID;
+  Token *literal = Token_create(String_create("0.15"), 1, 1);
+  token_type(literal) = FX_TOKEN_NUMBER;
+  Token *method_name = Token_create(String_create("to_i"), 1, 1);
+  token_type(literal) = FX_TOKEN_ID;
+
+  statement_push(method_call, literal);
+  statement_push(method_call, method_name);
+  statement_push(statements, method_call);
+  statement_push(list, identifier);
+  statement_push(block, list);
+  statement_push(block, statements);
+
+  statement_free(block);
+  // use valgrind to see if it is all free
+
+  return NULL;
+}
+
 void specs() {
   spec_setup("Statement");
 
   run_spec(test_token_statement);
   run_spec(test_list_statement);
+  run_spec(test_nested_statement);
 
   spec_teardown();
 }
