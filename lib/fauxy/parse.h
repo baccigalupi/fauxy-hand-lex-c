@@ -21,7 +21,8 @@
                                       )                                               \
                                     )
 
-void       parse_text(ParseState *state, Stack *stack);
-Statement *parse_unary_statement(Token *token);
+void         parse_text(ParseState *state, Stack *stack);
+void         statments_add(Statement *statements, ParseState *state);
+Statement   *create_unary_statement(Token *token);
 
 #endif

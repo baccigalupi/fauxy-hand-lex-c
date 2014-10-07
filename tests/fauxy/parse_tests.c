@@ -37,16 +37,15 @@ void *get_stack_statement_at_index(Stack *stack, int index) {
   return get_statement_at_index(stack_statements(stack), index);
 }
 
+char *test_single_literal_statement() {
+  spec_describe("single literal statement");
 
-char *spec_2_numbers_separated_by_statement_end() {
-  spec_describe("number semicolon number");
-
-  parse_test_setup(" 3.14 ; 4.15");
-
-  assert_ints_equal(stack_length(stack), 2, "stack length");
+  parse_test_setup("1.324");
 
   Statement *statement;
   Token *token;
+
+  assert_ints_equal(stack_length(stack), 1, "stack length");
 
   statement = get_stack_statement_at_index(stack, 0);
   assert_ints_equal(statement_length(statement), 1, "statement 1 length");
@@ -54,110 +53,186 @@ char *spec_2_numbers_separated_by_statement_end() {
   token = get_statement_at_index(statement, 0);
   assert_equal(token_type(token), FX_TOKEN_NUMBER, "token type");
 
-  statement = get_stack_statement_at_index(stack, 1);
-  assert_ints_equal(statement_length(statement), 1, "statement 2 length");
-  assert_equal(statement_type(statement), FX_ST_LITERAL, "statement type");
-  token = get_statement_at_index(statement, 0);
-  assert_equal(token_type(token), FX_TOKEN_NUMBER, "token type");
-
   parse_test_free();
 
   return NULL;
 }
 
-char *spec_2_numbers_separated_by_line_end() {
-  spec_describe("number line break");
+char *test_single_class_name() {
+  spec_describe("single class name statement");
 
-  parse_test_setup(" 3.14 \n 4.15 ");
-
-  assert_ints_equal(stack_length(stack), 2, "stack length");
+  parse_test_setup("MyClass");
 
   Statement *statement;
   Token *token;
 
+  assert_ints_equal(stack_length(stack), 1, "stack length");
+
   statement = get_stack_statement_at_index(stack, 0);
   assert_ints_equal(statement_length(statement), 1, "statement 1 length");
-  assert_ints_equal(statement_type(statement), FX_ST_LITERAL, "statement type");
+  assert_equal(statement_type(statement), FX_ST_CLASS, "statement type");
   token = get_statement_at_index(statement, 0);
-  assert_ints_equal(token_type(token), FX_TOKEN_NUMBER, "token type");
-
-  statement = get_stack_statement_at_index(stack, 1);
-  assert_ints_equal(statement_length(statement), 1, "statement 2 length");
-  assert_ints_equal(statement_type(statement), FX_ST_LITERAL, "statement type");
-  token = get_statement_at_index(statement, 0);
-  assert_ints_equal(token_type(token), FX_TOKEN_NUMBER, "token type");
+  assert_equal(token_type(token), FX_TOKEN_CLASS_ID, "token type");
 
   parse_test_free();
 
   return NULL;
 }
 
-char *spec_literal_with_dot_method_call() {
-  spec_describe("literal with dot method-call");
+char *test_single_identifier() {
+  spec_describe("single identifier statement");
 
-  parse_test_setup(" '0'.to_i \n");
+  parse_test_setup("my_id");
 
-  assert_ints_equal(stack_length(stack), 1, "stack length");
-
-  Statement *parent_statement;
-  Statement *sub_statement;
+  Statement *statement;
   Token *token;
 
-  parent_statement = get_stack_statement_at_index(stack, 0);
-  assert_ints_equal(statement_length(parent_statement), 1, "statement 1 length");
-  assert_ints_equal(statement_type(parent_statement), FX_ST_METHOD_CALL, "statement type");
-
-  sub_statement = get_statement_at_index(parent_statement, 0);
-  assert_ints_equal(statement_length(sub_statement), 1, "method call receiver statement length");
-  assert_ints_equal(statement_type(sub_statement), FX_ST_LITERAL, "literal statement receiver");
-  token = get_statement_at_index(sub_statement, 0);
-  assert_ints_equal(token_type(token), FX_TOKEN_STRING, "token type string");
-
-  sub_statement = get_statement_at_index(parent_statement, 1);
-  assert_ints_equal(statement_length(sub_statement), 1, "method call method name statement length");
-  assert_ints_equal(statement_type(sub_statement), FX_ST_ID, "id statement method name");
-
-  return NULL;
-}
-
-char *spec_dot_method_call() {
-  spec_describe("dot method-call");
-
-  parse_test_setup(" foo.to_s \n");
-
   assert_ints_equal(stack_length(stack), 1, "stack length");
 
-  Statement *parent_statement;
-  Statement *sub_statement;
-  // Token *token;
-
-  parent_statement = get_stack_statement_at_index(stack, 0);
-  assert_ints_equal(statement_length(parent_statement), 1, "statement 1 length");
-  assert_ints_equal(statement_type(parent_statement), FX_ST_METHOD_CALL, "statement type");
-
-  sub_statement = get_statement_at_index(parent_statement, 0);
-  assert_ints_equal(statement_length(sub_statement), 1, "method call receiver statement length");
-  assert_ints_equal(statement_type(sub_statement), FX_ST_ID, "id type statement receiver");
-
-  sub_statement = get_statement_at_index(parent_statement, 1);
-  assert_ints_equal(statement_length(sub_statement), 1, "method call method name statement length");
-  assert_ints_equal(statement_type(sub_statement), FX_ST_ID, "id statement method name");
+  statement = get_stack_statement_at_index(stack, 0);
+  assert_ints_equal(statement_length(statement), 1, "statement 1 length");
+  assert_equal(statement_type(statement), FX_ST_ID, "statement type");
+  token = get_statement_at_index(statement, 0);
+  assert_equal(token_type(token), FX_TOKEN_ID, "token type");
 
   parse_test_free();
 
   return NULL;
 }
 
+char *test_literal_space_identifier() {
+
+  return NULL;
+}
 
 void specs() {
   spec_setup("Parsing");
 
-  run_spec(spec_2_numbers_separated_by_statement_end);
-  run_spec(spec_2_numbers_separated_by_line_end);
-  run_spec(spec_literal_with_dot_method_call);
+  // identification of single statements
+  run_spec(test_single_literal_statement);
+  run_spec(test_single_class_name);
+  run_spec(test_single_identifier);
+
+  // method calls
+  // run_spec(test_literal_space_identifier);
+
+  // run_spec(spec_2_numbers_separated_by_statement_end);
+  // run_spec(spec_2_numbers_separated_by_line_end);
+  // run_spec(spec_literal_with_dot_method_call);
   // run_spec(spec_dot_method_call);
 
   spec_teardown();
 }
 
 run_all_specs(specs);
+
+// char *spec_2_numbers_separated_by_statement_end() {
+//   spec_describe("number semicolon number");
+//
+//   parse_test_setup(" 3.14 ; 4.15");
+//
+//   assert_ints_equal(stack_length(stack), 2, "stack length");
+//
+//   Statement *statement;
+//   Token *token;
+//
+//   statement = get_stack_statement_at_index(stack, 0);
+//   assert_ints_equal(statement_length(statement), 1, "statement 1 length");
+//   assert_equal(statement_type(statement), FX_ST_LITERAL, "statement type");
+//   token = get_statement_at_index(statement, 0);
+//   assert_equal(token_type(token), FX_TOKEN_NUMBER, "token type");
+//
+//   statement = get_stack_statement_at_index(stack, 1);
+//   assert_ints_equal(statement_length(statement), 1, "statement 2 length");
+//   assert_equal(statement_type(statement), FX_ST_LITERAL, "statement type");
+//   token = get_statement_at_index(statement, 0);
+//   assert_equal(token_type(token), FX_TOKEN_NUMBER, "token type");
+//
+//   parse_test_free();
+//
+//   return NULL;
+// }
+
+// char *spec_2_numbers_separated_by_line_end() {
+//   spec_describe("number line break");
+//
+//   parse_test_setup(" 3.14 \n 4.15 ");
+//
+//   assert_ints_equal(stack_length(stack), 2, "stack length");
+//
+//   Statement *statement;
+//   Token *token;
+//
+//   statement = get_stack_statement_at_index(stack, 0);
+//   assert_ints_equal(statement_length(statement), 1, "statement 1 length");
+//   assert_ints_equal(statement_type(statement), FX_ST_LITERAL, "statement type");
+//   token = get_statement_at_index(statement, 0);
+//   assert_ints_equal(token_type(token), FX_TOKEN_NUMBER, "token type");
+//
+//   statement = get_stack_statement_at_index(stack, 1);
+//   assert_ints_equal(statement_length(statement), 1, "statement 2 length");
+//   assert_ints_equal(statement_type(statement), FX_ST_LITERAL, "statement type");
+//   token = get_statement_at_index(statement, 0);
+//   assert_ints_equal(token_type(token), FX_TOKEN_NUMBER, "token type");
+//
+//   parse_test_free();
+//
+//   return NULL;
+// }
+//
+// char *spec_literal_with_dot_method_call() {
+//   spec_describe("literal with dot method-call");
+//
+//   parse_test_setup(" '0'.to_i \n");
+//
+//   assert_ints_equal(stack_length(stack), 1, "stack length");
+//
+//   Statement *parent_statement;
+//   Statement *sub_statement;
+//   Token *token;
+//
+//   parent_statement = get_stack_statement_at_index(stack, 0);
+//   assert_ints_equal(statement_length(parent_statement), 1, "statement 1 length");
+//   assert_ints_equal(statement_type(parent_statement), FX_ST_METHOD_CALL, "statement type");
+//
+//   sub_statement = get_statement_at_index(parent_statement, 0);
+//   assert_ints_equal(statement_length(sub_statement), 1, "method call receiver statement length");
+//   assert_ints_equal(statement_type(sub_statement), FX_ST_LITERAL, "literal statement receiver");
+//   token = get_statement_at_index(sub_statement, 0);
+//   assert_ints_equal(token_type(token), FX_TOKEN_STRING, "token type string");
+//
+//   sub_statement = get_statement_at_index(parent_statement, 1);
+//   assert_ints_equal(statement_length(sub_statement), 1, "method call method name statement length");
+//   assert_ints_equal(statement_type(sub_statement), FX_ST_ID, "id statement method name");
+//
+//   return NULL;
+// }
+//
+// char *spec_dot_method_call() {
+//   spec_describe("dot method-call");
+//
+//   parse_test_setup(" foo.to_s \n");
+//
+//   assert_ints_equal(stack_length(stack), 1, "stack length");
+//
+//   Statement *parent_statement;
+//   Statement *sub_statement;
+//   // Token *token;
+//
+//   parent_statement = get_stack_statement_at_index(stack, 0);
+//   assert_ints_equal(statement_length(parent_statement), 1, "statement 1 length");
+//   assert_ints_equal(statement_type(parent_statement), FX_ST_METHOD_CALL, "statement type");
+//
+//   sub_statement = get_statement_at_index(parent_statement, 0);
+//   assert_ints_equal(statement_length(sub_statement), 1, "method call receiver statement length");
+//   assert_ints_equal(statement_type(sub_statement), FX_ST_ID, "id type statement receiver");
+//
+//   sub_statement = get_statement_at_index(parent_statement, 1);
+//   assert_ints_equal(statement_length(sub_statement), 1, "method call method name statement length");
+//   assert_ints_equal(statement_type(sub_statement), FX_ST_ID, "id statement method name");
+//
+//   parse_test_free();
+//
+//   return NULL;
+// }
+//

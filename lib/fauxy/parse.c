@@ -7,30 +7,11 @@ void parse_text(ParseState *state, Stack *stack) {
   check(stack, "stack not passed into parser");
 
   Statement *statements = stack_statements(stack);
-  Token *token = NULL;
-  Statement *statement = NULL;
-  Statement *sub_statement = NULL;
 
   parse_state_load(state);
-
-  while( parse_state_current_token(state) != NULL ) {
-    token = parse_state_current_token(state);
-
-    statement == NULL ?
-      (statement = parse_unary_statement(token)) :
-      (sub_statement = parse_unary_statement(token));
-
-    if (statement && token_may_end_statement(token)) {
-      statement_push(statements, statement);
-      token_free(token);
-      statement = NULL;
-    }
-
+  while ( parse_state_current_token(state) ) {
+    statments_add(statements, state);
     parse_state_load(state);
-  }
-
-  if (statement && statement_length(statement) > 0) {
-    statement_push(statements, statement);
   }
 
 error:
@@ -40,7 +21,15 @@ error:
   return;
 }
 
-Statement *parse_unary_statement(Token *token) {
+void statments_add(Statement *statements, ParseState *state) {
+  Token *token = parse_state_current_token(state);
+  Statement *unary = create_unary_statement(token);
+  if (unary) {
+    statement_push(statements, unary);
+  }
+}
+
+Statement *create_unary_statement(Token *token) {
   Statement *statement;
   StatementType type = 0;
 
