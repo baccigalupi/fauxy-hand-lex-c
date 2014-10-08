@@ -4,6 +4,17 @@
 #include "stack.h"
 #include "token.h"
 
+// object for carrying switching current statement
+// and identifying success of parse
+typedef struct ParseStatement {
+  Statement   *statement;
+  Boolean     success;
+  // complete?
+} ParseStatement;
+
+#define parse_statement_statement(P)    ((P)->statement)
+#define parse_statement_success(P)      ((P)->success)
+
 #define token_is_literal(T)     (                                               \
                                   (token_type(T) >= FX_TOKEN_NUMBER) &&         \
                                   (token_type(T) <= FX_TOKEN_ATOM)              \
@@ -22,7 +33,10 @@
                                     )
 
 void         parse_text(ParseState *state, Stack *stack);
-void         statments_add(Statement *statements, ParseState *state);
+Statement   *get_next_statement(ParseState *state, Statement *parent_statement);
 Statement   *create_unary_statement(Token *token);
+void         wrap_unary_statement(Token *token, ParseStatement *p_statement);
+
+ParseStatement *ParseStatement_create(Statement *statement);
 
 #endif

@@ -101,6 +101,14 @@ char *test_single_identifier() {
 }
 
 char *test_literal_space_identifier() {
+  spec_describe("literal space identifier method call");
+
+  parse_test_setup("0 ++");
+
+  Statement *statement;
+  Token *token;
+
+  assert_ints_equal(stack_length(stack), 1, "stack length");
 
   return NULL;
 }

@@ -23,12 +23,16 @@ typedef enum {
 typedef struct Statement {
   StatementType type;
   void *value;
+  Boolean complete;
 } Statement;
 
 #define STATEMENTS_INIT_SIZE    1024
 
 #define statement_type(S)       ((S)->type)
 #define statement_value(S)      ((S)->value)
+#define statement_complete(S)   ((S)->complete)
+
+#define statement_is_incomplete(S)  (!(S) || !statement_complete(S))
 
 #define statement_type_is_list(T)   ((T) >= NESTED_STATEMENT_TYPE_LIMIT)
 #define statement_value_is_list(S)  (statement_type_is_list(statement_type(S)))

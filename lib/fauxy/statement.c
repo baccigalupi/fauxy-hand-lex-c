@@ -7,6 +7,7 @@ Statement *Statement_create(StatementType type) {
   Statement *statement = calloc(1, sizeof(Statement));
   check_mem(statement);
   statement_type(statement) = type;
+  statement_complete(statement) = false;
 
   if (statement_type_is_list(type)) {
     List *list = List_create();
