@@ -32,6 +32,7 @@ Method Call
 ---------------------------
 
 Missing stuff:
+* unary operators ! etc
 * partial evaluation/currying
 * if/guard/return statement
 * named arguments
